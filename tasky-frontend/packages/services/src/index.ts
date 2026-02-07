@@ -31,6 +31,7 @@ export type { ApiResponse } from "./api/client";
 export { useLogin, useRegister, useLogout } from "./hooks/use-auth";
 export { useBoards, useCreateBoard } from "./hooks/use-boards";
 export {
+  taskBoardQueryOptions,
   useTasks,
   useTask,
   useTaskBoard,

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useBoards, useCreateBoard } from "@tasky/services";
+import { taskBoardQueryOptions, useBoards, useCreateBoard } from "@tasky/services";
 import {
   Button,
   Card,
@@ -17,6 +18,7 @@ import { useTheme } from "@/contexts/theme-context";
 import { LayoutDashboard, Plus } from "lucide-react";
 
 export function BoardListPage() {
+  const queryClient = useQueryClient();
   const { data: serverBoards, isLoading } = useBoards();
   const { mergeBoards, boards } = useBoardsStore();
   const createBoard = useCreateBoard();
@@ -106,6 +108,9 @@ export function BoardListPage() {
             to="/board/$boardId"
             params={{ boardId: board.boardId }}
             className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+            onMouseEnter={() =>
+              void queryClient.prefetchQuery(taskBoardQueryOptions(board.boardId))
+            }
           >
             <Card className="h-32 border-(--border) bg-(--card)/70 backdrop-blur-md transition-all duration-200 hover:border-(--primary)/40 hover:bg-(--card)/85 hover:shadow-md dark:bg-(--card)/60 dark:hover:bg-(--card)/75">
               <CardHeader className="pb-2">

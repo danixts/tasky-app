@@ -11,6 +11,20 @@ import type {
 } from "../types/task";
 import { queryKeys } from "../query-keys";
 
+export function taskBoardQueryOptions(boardId: string | null | undefined) {
+  return {
+    queryKey: queryKeys.tasks.board(boardId ?? undefined),
+    queryFn: async () => {
+      const { data } = await apiClient.get<ApiResponse<TaskBoardResponse>>(
+        "/api/v1/tasks/board",
+        { params: { boardId } }
+      );
+      return data.data;
+    },
+    enabled: !!boardId,
+  };
+}
+
 export function useTasks(status?: TaskStatus) {
   return useQuery({
     queryKey: queryKeys.tasks.list(status),
@@ -39,17 +53,7 @@ export function useTask(taskId: string) {
 }
 
 export function useTaskBoard(boardId: string | null | undefined) {
-  return useQuery({
-    queryKey: queryKeys.tasks.board(boardId ?? undefined),
-    queryFn: async () => {
-      const { data } = await apiClient.get<ApiResponse<TaskBoardResponse>>(
-        "/api/v1/tasks/board",
-        { params: { boardId } }
-      );
-      return data.data;
-    },
-    enabled: !!boardId,
-  });
+  return useQuery(taskBoardQueryOptions(boardId));
 }
 
 export function useCreateTask() {
