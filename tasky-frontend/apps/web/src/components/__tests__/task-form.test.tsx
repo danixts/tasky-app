@@ -6,8 +6,8 @@ import type { Task } from "@tasky/services";
 
 const mockTask: Task = {
   taskId: "456",
-  title: "Tarea existente",
-  description: "Descripcion existente",
+  title: "Existing task",
+  description: "Existing description",
   status: "IN_PROGRESS",
   priority: "NORMAL",
   createdAt: "2026-02-06T12:00:00",
@@ -38,9 +38,9 @@ describe("TaskForm", () => {
       />
     );
     expect(screen.getByText("Edit Task")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Tarea existente")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Existing task")).toBeInTheDocument();
     expect(
-      screen.getByDisplayValue("Descripcion existente")
+      screen.getByDisplayValue("Existing description")
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save/i })).toBeInTheDocument();
   });
@@ -57,7 +57,7 @@ describe("TaskForm", () => {
     );
 
     fireEvent.change(screen.getByLabelText("Title"), {
-      target: { value: "Nueva tarea" },
+      target: { value: "New task" },
     });
     fireEvent.change(screen.getByLabelText("Description"), {
       target: { value: "Desc" },
@@ -68,7 +68,7 @@ describe("TaskForm", () => {
       expect(onSubmit).toHaveBeenCalledWith({
         boardId: "board-1",
         statusId: undefined,
-        title: "Nueva tarea",
+        title: "New task",
         description: "Desc",
         priority: "NORMAL",
       });
@@ -87,7 +87,7 @@ describe("TaskForm", () => {
     );
 
     fireEvent.change(screen.getByLabelText("Title"), {
-      target: { value: "Actualizada" },
+      target: { value: "Updated" },
     });
     fireEvent.click(screen.getByRole("button", { name: /save/i }));
 
@@ -95,7 +95,7 @@ describe("TaskForm", () => {
       expect(onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           taskId: "456",
-          title: "Actualizada",
+          title: "Updated",
         })
       );
     });
@@ -110,6 +110,6 @@ describe("TaskForm", () => {
         onSubmit={async () => {}}
       />
     );
-    expect(screen.queryByText("Nueva Tarea")).not.toBeInTheDocument();
+    expect(screen.queryByText("New Task")).not.toBeInTheDocument();
   });
 });

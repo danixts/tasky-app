@@ -11,9 +11,9 @@ import { TaskCard, type TaskEditData } from "./task-card";
 import { ListTodo, Loader2, CheckCircle2, Plus } from "lucide-react";
 
 const COLUMN_ACCENT: Record<TaskStatus, string> = {
-  PENDING: "border-t-4 border-t-(--column-pending-border)",
-  IN_PROGRESS: "border-t-4 border-t-(--column-progress-border)",
-  COMPLETED: "border-t-4 border-t-(--column-completed-border)",
+  PENDING: "border-t-4 border-t-(--primary)",
+  IN_PROGRESS: "border-t-4 border-t-(--primary)",
+  COMPLETED: "border-t-4 border-t-(--primary)",
 };
 
 const COLUMN_ICONS: Record<TaskStatus, typeof ListTodo> = {
@@ -103,14 +103,16 @@ export function TaskColumn({
         <span className="rounded-full bg-(--muted) px-2 py-0.5 text-xs font-medium text-(--foreground)">
           {tasks.length}
         </span>
-        <button
-          type="button"
-          onClick={() => setIsAdding(true)}
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-(--muted-foreground) hover:bg-(--accent) hover:text-(--accent-foreground)"
-          title="Añadir tarea"
-        >
-          <Plus className="h-4 w-4" />
-        </button>
+        {status !== "COMPLETED" && (
+          <button
+            type="button"
+            onClick={() => setIsAdding(true)}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-(--muted-foreground) hover:bg-(--accent) hover:text-(--accent-foreground)"
+            title="Add task"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+        )}
       </div>
       <div className="flex min-h-[140px] flex-1 flex-col gap-3 p-3">
         <SortableContext
@@ -126,62 +128,63 @@ export function TaskColumn({
             />
           ))}
         </SortableContext>
-        {isAdding ? (
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-2 rounded-lg bg-(--card) p-3 shadow-sm"
-          >
-            <Input
-              placeholder="Card title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={loading}
-              required
-              maxLength={255}
-              className="h-9 text-sm"
-              autoFocus
-            />
-            <Textarea
-              placeholder="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              disabled={loading}
-              rows={2}
-              maxLength={500}
-              className="min-h-[60px] resize-none text-sm"
-            />
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                size="sm"
-                disabled={loading || !title.trim()}
-                className="flex-1"
-              >
-                Add
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={handleCancel}
+        {status !== "COMPLETED" &&
+          (isAdding ? (
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-2 rounded-lg bg-(--card) p-3 shadow-sm"
+            >
+              <Input
+                placeholder="Card title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 disabled={loading}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        ) : (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAdding(true)}
-            className="w-full justify-center gap-2 rounded-lg border border-dashed border-(--border)/80 py-2.5 text-xs font-medium text-(--muted-foreground) hover:bg-(--accent)/50 hover:text-(--accent-foreground)"
-          >
-            <Plus className="h-3.5 w-3.5 shrink-0" />
-            Add Task
-          </Button>
-        )}
+                required
+                maxLength={255}
+                className="h-9 text-sm"
+                autoFocus
+              />
+              <Textarea
+                placeholder="Description (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                disabled={loading}
+                rows={2}
+                maxLength={500}
+                className="min-h-[60px] resize-none text-sm"
+              />
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={loading || !title.trim()}
+                  className="flex-1"
+                >
+                  Add
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAdding(true)}
+              className="w-full justify-center gap-2 rounded-lg border border-dashed border-(--border)/80 py-2.5 text-xs font-medium text-(--muted-foreground) hover:bg-(--accent)/50 hover:text-(--accent-foreground)"
+            >
+              <Plus className="h-3.5 w-3.5 shrink-0" />
+              Add Task
+            </Button>
+          ))}
       </div>
     </div>
   );

@@ -4,19 +4,12 @@ import type {
   TaskBoard,
   TaskPriority,
   TaskBoardResponse,
-  BoardStatus,
 } from "@tasky/services";
 
 export function taskBoardResponseToTaskBoard(
   response: TaskBoardResponse | null | undefined
 ): TaskBoard | null {
   if (!response?.statuses?.length || !response?.columns) return null;
-  const codeToStatus = (code: string): TaskStatus =>
-    code === "TODO"
-      ? "PENDING"
-      : code === "IN_PROGRESS"
-        ? "IN_PROGRESS"
-        : "COMPLETED";
   const pendingCol = response.columns.find(
     (c) =>
       response.statuses.find((s) => s.statusId === c.statusId)?.code === "TODO"
@@ -65,20 +58,20 @@ export const BOARD_COLUMN_CONFIG: Record<
 > = {
   PENDING: {
     label: "To Do",
-    color: "text-(--column-pending-text)",
-    bg: "bg-(--column-pending-bg)",
+    color: "text-(--primary)",
+    bg: "bg-(--primary)/10",
     icon: "📋",
   },
   IN_PROGRESS: {
     label: "In Progress",
-    color: "text-(--column-progress-text)",
-    bg: "bg-(--column-progress-bg)",
+    color: "text-(--primary)",
+    bg: "bg-(--primary)/10",
     icon: "🔄",
   },
   COMPLETED: {
     label: "Completed",
-    color: "text-(--column-completed-text)",
-    bg: "bg-(--column-completed-bg)",
+    color: "text-(--primary)",
+    bg: "bg-(--primary)/10",
     icon: "✅",
   },
 };

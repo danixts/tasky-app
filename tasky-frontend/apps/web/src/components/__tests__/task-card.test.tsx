@@ -8,8 +8,8 @@ import { SortableContext } from "@dnd-kit/sortable";
 
 const mockTask: Task = {
   taskId: "123",
-  title: "Tarea de prueba",
-  description: "Descripcion de la tarea",
+  title: "Test task",
+  description: "Task description",
   status: "PENDING",
   priority: "NORMAL",
   createdAt: "2026-02-06T12:00:00",
@@ -34,8 +34,8 @@ function renderTaskCard(task = mockTask) {
 describe("TaskCard", () => {
   it("renders task title and description", () => {
     renderTaskCard();
-    expect(screen.getByText("Tarea de prueba")).toBeInTheDocument();
-    expect(screen.getByText("Descripcion de la tarea")).toBeInTheDocument();
+    expect(screen.getByText("Test task")).toBeInTheDocument();
+    expect(screen.getByText("Task description")).toBeInTheDocument();
   });
 
   it("renders creation date", () => {
@@ -45,10 +45,8 @@ describe("TaskCard", () => {
 
   it("renders task without description", () => {
     renderTaskCard({ ...mockTask, description: null });
-    expect(screen.getByText("Tarea de prueba")).toBeInTheDocument();
-    expect(
-      screen.queryByText("Descripcion de la tarea")
-    ).not.toBeInTheDocument();
+    expect(screen.getByText("Test task")).toBeInTheDocument();
+    expect(screen.queryByText("Task description")).not.toBeInTheDocument();
   });
 
   it("calls onDelete when delete button is clicked", () => {
@@ -68,12 +66,12 @@ describe("TaskCard", () => {
       btn.querySelector(".lucide-pencil")
     );
     if (editBtn) fireEvent.click(editBtn);
-    expect(screen.getByText("Editar tarea")).toBeInTheDocument();
-    const saveBtn = screen.getByRole("button", { name: /guardar/i });
+    expect(screen.getByText("Edit task")).toBeInTheDocument();
+    const saveBtn = screen.getByRole("button", { name: /save/i });
     fireEvent.click(saveBtn);
     expect(onSaveEdit).toHaveBeenCalledWith("123", {
-      title: "Tarea de prueba",
-      description: "Descripcion de la tarea",
+      title: "Test task",
+      description: "Task description",
       priority: "NORMAL",
     });
   });

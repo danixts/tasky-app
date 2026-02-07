@@ -101,6 +101,7 @@ function TaskBoardComponent({
 
       const currentTask = findTask(displayBoard, taskId);
       if (!currentTask) return;
+      if (currentTask.status === "COMPLETED") return;
 
       const targetStatus: TaskStatus = isColumnId(overId)
         ? overId
@@ -214,7 +215,7 @@ function TaskBoardComponent({
         },
       });
     },
-    [displayBoard, setBoard, deleteTask, queryClient, toast, boardId]
+    [displayBoard, setBoard, deleteTask, queryClient, toast]
   );
 
   const handleAddCardSubmit = useCallback(
@@ -258,27 +259,40 @@ function TaskBoardComponent({
   if (!boardId) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center p-6">
-        <p className="text-sm text-(--muted-foreground)">
-          Selecciona un tablero
-        </p>
+        <p className="text-sm text-(--muted-foreground)">Select a board</p>
       </div>
     );
   }
 
   if (isLoading && !displayBoard) {
     return (
-      <div className="min-h-0 flex-1 p-3 sm:p-4 md:p-6">
-        <div className="mb-3 flex items-center justify-between sm:mb-4">
-          <Skeleton className="h-7 w-28 sm:h-8 sm:w-32" />
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="shrink-0 border-b border-(--border)/60 bg-(--background) px-4 py-4 md:px-6">
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-4 w-32 shrink-0" />
+            <Skeleton className="h-2 max-w-sm min-w-[140px] flex-1 rounded-full" />
+          </div>
         </div>
-        <div className="flex gap-3 overflow-x-auto pb-2">
-          {TASK_STATUSES.map((col) => (
-            <div key={col} className="flex w-72 shrink-0 flex-col gap-3">
-              <Skeleton className="h-10 w-full rounded-lg" />
-              <Skeleton className="h-32 w-full rounded-lg" />
-              <Skeleton className="h-32 w-full rounded-lg" />
-            </div>
-          ))}
+        <div className="min-h-0 flex-1 overflow-x-auto overflow-y-hidden pr-[max(0.75rem,env(safe-area-inset-right))] pb-6 pl-[max(0.75rem,env(safe-area-inset-left))] sm:pr-[max(1rem,env(safe-area-inset-right))] sm:pl-[max(1rem,env(safe-area-inset-left))] md:pr-[max(1.5rem,env(safe-area-inset-right))] md:pl-[max(1.5rem,env(safe-area-inset-left))]">
+          <div className="flex gap-5 px-2 pt-4 pb-6 md:px-4">
+            {TASK_STATUSES.map((status) => (
+              <div
+                key={status}
+                className="flex w-72 min-w-[280px] shrink-0 flex-col border-t-4 border-t-(--primary) bg-(--muted)/10"
+              >
+                <div className="flex items-center gap-2 px-3 py-3.5">
+                  <Skeleton className="h-4 w-4 shrink-0 rounded" />
+                  <Skeleton className="h-4 max-w-[120px] flex-1 rounded" />
+                  <Skeleton className="h-5 w-6 rounded-full" />
+                </div>
+                <div className="flex min-h-[140px] flex-1 flex-col gap-3 p-3">
+                  <Skeleton className="h-24 w-full rounded-xl" />
+                  <Skeleton className="h-24 w-full rounded-xl" />
+                  <Skeleton className="h-20 w-full rounded-xl" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -296,7 +310,7 @@ function TaskBoardComponent({
       <div className="shrink-0 border-b border-(--border)/60 bg-(--background) px-4 py-4 md:px-6">
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-(--foreground)">
-            {progressPercent}% actividad completada
+            {progressPercent}% completed
           </span>
           <div className="h-2 max-w-sm min-w-[140px] flex-1 overflow-hidden rounded-full bg-(--muted)">
             <div

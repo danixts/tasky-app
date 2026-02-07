@@ -10,30 +10,30 @@ import {
 export function Toaster(props: ToasterProps) {
   return (
     <Sonner
-      theme="light"
+      theme={props.theme ?? "system"}
       className="toaster group"
       position="bottom-right"
       icons={{
-        success: <CircleCheck className="size-4 text-green-600" />,
-        info: <Info className="size-4 text-blue-600" />,
-        warning: <TriangleAlert className="size-4 text-amber-600" />,
-        error: <OctagonX className="size-4 text-(--destructive)" />,
+        success: (
+          <CircleCheck className="size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        ),
+        info: (
+          <Info className="size-5 shrink-0 text-blue-600 dark:text-blue-400" />
+        ),
+        warning: (
+          <TriangleAlert className="size-5 shrink-0 text-amber-600 dark:text-amber-400" />
+        ),
+        error: (
+          <OctagonX className="size-5 shrink-0 text-red-600 dark:text-red-400" />
+        ),
         loading: (
-          <Loader2 className="size-4 animate-spin text-(--muted-foreground)" />
+          <Loader2 className="size-5 shrink-0 animate-spin text-(--foreground)" />
         ),
       }}
-      style={
-        {
-          "--normal-bg": "var(--color-card)",
-          "--normal-text": "var(--color-card-foreground)",
-          "--normal-border": "var(--color-border)",
-          "--border-radius": "var(--radius-lg)",
-        } as React.CSSProperties
-      }
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:border-(--border) group-[.toaster]:bg-(--card) group-[.toaster]:text-(--card-foreground) group-[.toaster]:shadow-lg",
+            "group toast group-[.toaster]:border-2 group-[.toaster]:border-(--border) group-[.toaster]:bg-(--card) group-[.toaster]:text-(--foreground) group-[.toaster]:shadow-xl",
           description: "group-[.toast]:text-(--muted-foreground)",
           actionButton:
             "group-[.toast]:bg-(--primary) group-[.toast]:text-(--primary-foreground)",

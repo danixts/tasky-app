@@ -167,7 +167,7 @@ function TaskListRow({
               <button
                 type="button"
                 className="rounded p-1.5 text-(--board-add-text) opacity-0 transition-opacity group-hover:opacity-100 hover:bg-(--board-bar-text)/15 hover:text-(--board-bar-text)"
-                title="Editar"
+                title="Edit"
               >
                 <Pencil className="h-3.5 w-3.5" />
               </button>
@@ -181,7 +181,7 @@ function TaskListRow({
             >
               <div className="bg-(--muted)/50 px-4 py-3">
                 <h3 className="text-sm font-semibold text-(--foreground)">
-                  Editar tarea
+                  Edit task
                 </h3>
               </div>
               <form
@@ -190,13 +190,13 @@ function TaskListRow({
               >
                 <div className="space-y-2">
                   <Label htmlFor={`list-edit-title-${task.taskId}`}>
-                    Título
+                    Title
                   </Label>
                   <Input
                     id={`list-edit-title-${task.taskId}`}
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
-                    placeholder="Nombre de la tarea"
+                    placeholder="Task name"
                     required
                     maxLength={255}
                     className="h-10 rounded-lg text-sm"
@@ -204,13 +204,13 @@ function TaskListRow({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor={`list-edit-desc-${task.taskId}`}>
-                    Descripción
+                    Description
                   </Label>
                   <Textarea
                     id={`list-edit-desc-${task.taskId}`}
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
-                    placeholder="Opcional..."
+                    placeholder="Optional..."
                     rows={2}
                     maxLength={500}
                     className="min-h-[64px] resize-none rounded-lg text-sm"
@@ -224,7 +224,7 @@ function TaskListRow({
                     className="min-w-[80px] rounded-lg"
                     onClick={() => setEditOpen(false)}
                   >
-                    Cancelar
+                    Cancel
                   </Button>
                   <Button
                     type="submit"
@@ -235,7 +235,7 @@ function TaskListRow({
                     {saving && (
                       <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                     )}
-                    Guardar
+                    Save
                   </Button>
                 </div>
               </form>
@@ -246,7 +246,7 @@ function TaskListRow({
               <button
                 type="button"
                 className="rounded p-1.5 text-(--board-add-text) opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-400"
-                title="Eliminar"
+                title="Delete"
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
@@ -257,9 +257,9 @@ function TaskListRow({
               sideOffset={6}
               onOpenAutoFocus={(e) => e.preventDefault()}
             >
-              <p className="text-sm font-medium">¿Eliminar esta tarea?</p>
+              <p className="text-sm font-medium">Delete this task?</p>
               <p className="mt-1 text-xs text-(--muted-foreground)">
-                Esta acción no se puede deshacer.
+                This action cannot be undone.
               </p>
               <div className="mt-3 flex gap-2">
                 <Button
@@ -269,7 +269,7 @@ function TaskListRow({
                   className="flex-1"
                   onClick={() => setDeleteOpen(false)}
                 >
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button
                   type="button"
@@ -278,7 +278,7 @@ function TaskListRow({
                   className="flex-1"
                   onClick={handleConfirmDelete}
                 >
-                  Eliminar
+                  Delete
                 </Button>
               </div>
             </PopoverContent>
@@ -352,7 +352,7 @@ export function TaskList({ boardId }: TaskListProps) {
             setBoard((prev) =>
               prev ? replaceTaskInBoard(prev, previousTask) : prev
             );
-            toast.error("Error", "No se pudo guardar");
+            toast.error("Error", "Could not save");
           },
         }
       );
@@ -374,7 +374,7 @@ export function TaskList({ boardId }: TaskListProps) {
         },
         onError: () => {
           if (snapshot) setBoard(snapshot);
-          toast.error("Error", "No se pudo eliminar la tarea");
+          toast.error("Error", "Could not delete the task");
         },
       });
     },
@@ -403,7 +403,7 @@ export function TaskList({ boardId }: TaskListProps) {
             });
           },
           onError: () => {
-            toast.error("Error", "No se pudo cambiar el estado");
+            toast.error("Error", "Could not update status");
           },
         }
       );
@@ -460,7 +460,7 @@ export function TaskList({ boardId }: TaskListProps) {
             setBoard((prev) =>
               prev ? removeTask(prev, newTask.taskId) : prev
             );
-            toast.error("Error", "No se pudo crear la tarea");
+            toast.error("Error", "Could not create the task");
           },
           onSettled: () => setAddLoading(false),
         }
@@ -481,20 +481,21 @@ export function TaskList({ boardId }: TaskListProps) {
   if (!boardId) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center p-6">
-        <p className="text-sm text-(--muted-foreground)">
-          Selecciona un tablero
-        </p>
+        <p className="text-sm text-(--muted-foreground)">Select a board</p>
       </div>
     );
   }
 
   if (isLoading && !displayBoard) {
     return (
-      <div className="min-h-0 flex-1 space-y-3 p-3 sm:p-4 md:p-6">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-14 w-full rounded-lg" />
-        <Skeleton className="h-14 w-full rounded-lg" />
-        <Skeleton className="h-14 w-full rounded-lg" />
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-3 pr-[max(0.75rem,env(safe-area-inset-right))] pb-6 pl-[max(0.75rem,env(safe-area-inset-left))] sm:p-4 sm:pr-[max(1rem,env(safe-area-inset-right))] sm:pl-[max(1rem,env(safe-area-inset-left))] md:p-6 md:pr-[max(1.5rem,env(safe-area-inset-right))] md:pl-[max(1.5rem,env(safe-area-inset-left))]">
+        <div className="mx-auto w-full max-w-3xl space-y-4">
+          <Skeleton className="h-9 w-48 rounded-lg" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+          <Skeleton className="h-20 w-full rounded-xl" />
+        </div>
       </div>
     );
   }
@@ -509,7 +510,7 @@ export function TaskList({ boardId }: TaskListProps) {
           >
             <div className="space-y-3">
               <Input
-                placeholder="Título de la tarea"
+                placeholder="Task title"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
                 disabled={addLoading}
@@ -519,7 +520,7 @@ export function TaskList({ boardId }: TaskListProps) {
                 autoFocus
               />
               <Textarea
-                placeholder="Descripción (opcional)"
+                placeholder="Description (optional)"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
                 disabled={addLoading}
@@ -537,7 +538,7 @@ export function TaskList({ boardId }: TaskListProps) {
                   {addLoading && (
                     <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
                   )}
-                  Añadir
+                  Add
                 </Button>
                 <Button
                   type="button"
@@ -550,7 +551,7 @@ export function TaskList({ boardId }: TaskListProps) {
                   }}
                   disabled={addLoading}
                 >
-                  Cancelar
+                  Cancel
                 </Button>
               </div>
             </div>
@@ -563,7 +564,7 @@ export function TaskList({ boardId }: TaskListProps) {
             className="list-section-enter w-full justify-center gap-2 rounded-xl border-2 border-dashed border-(--board-card-border) py-3 text-(--board-add-text) transition-colors hover:border-(--muted-foreground)/50 hover:bg-(--board-card-hover) hover:text-(--foreground)"
           >
             <Plus className="h-4 w-4 shrink-0" />
-            Nueva tarea
+            New task
           </Button>
         )}
 
@@ -613,7 +614,7 @@ export function TaskList({ boardId }: TaskListProps) {
             </>
           ) : (
             <p className="py-8 text-center text-sm text-(--board-add-text)">
-              No hay tareas. Añade una para empezar.
+              No tasks. Add one to get started.
             </p>
           )}
         </div>

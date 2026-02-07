@@ -13,9 +13,21 @@ import {
   Popover,
   PopoverAnchor,
   PopoverContent,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Textarea,
 } from "@tasky/ui";
 import { Loader2 } from "lucide-react";
+
+const PRIORITY_OPTIONS: { value: TaskPriority; label: string; dot: string }[] =
+  [
+    { value: "LOW", label: "Low", dot: "bg-emerald-500" },
+    { value: "NORMAL", label: "Normal", dot: "bg-indigo-500" },
+    { value: "HIGH", label: "High", dot: "bg-orange-500" },
+  ];
 
 export type TaskFormSubmitPayload =
   | (CreateTaskRequest & { taskId?: string })
@@ -143,29 +155,57 @@ export function TaskForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="task-form-status">Status</Label>
-            <select
-              id="task-form-status"
+            <Select
               value={status}
-              onChange={(e) => setStatus(e.target.value as TaskStatus)}
-              className="flex h-9 w-full rounded-md border border-(--input) bg-(--background) px-3 py-1 text-sm text-(--foreground) shadow-sm focus-visible:ring-2 focus-visible:ring-(--ring) focus-visible:outline-none"
+              onValueChange={(v) => setStatus(v as TaskStatus)}
             >
-              <option value="PENDING">Pending</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="COMPLETED">Completed</option>
-            </select>
+              <SelectTrigger
+                id="task-form-status"
+                className="h-10 w-full rounded-lg border-(--input) bg-(--background)"
+              >
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent
+                className="min-w-[var(--radix-select-trigger-width)] rounded-lg border-(--border) bg-(--popover)"
+                position="popper"
+              >
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="task-form-priority">Prioridad</Label>
-            <select
-              id="task-form-priority"
+            <Label htmlFor="task-form-priority">Priority</Label>
+            <Select
               value={priority}
-              onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              className="flex h-9 w-full rounded-md border border-(--input) bg-(--background) px-3 py-1 text-sm text-(--foreground) shadow-sm focus-visible:ring-2 focus-visible:ring-(--ring) focus-visible:outline-none"
+              onValueChange={(v) => setPriority(v as TaskPriority)}
             >
-              <option value="LOW">Baja</option>
-              <option value="NORMAL">Normal</option>
-              <option value="HIGH">Alta</option>
-            </select>
+              <SelectTrigger
+                id="task-form-priority"
+                className="h-10 w-full rounded-lg border-(--input) bg-(--background)"
+              >
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent
+                className="min-w-[var(--radix-select-trigger-width)] rounded-lg border-(--border) bg-(--popover)"
+                position="popper"
+              >
+                {PRIORITY_OPTIONS.map((opt) => (
+                  <SelectItem
+                    key={opt.value}
+                    value={opt.value}
+                    className="flex items-center gap-2 py-2"
+                  >
+                    <span
+                      className={`h-2 w-2 shrink-0 rounded-full ${opt.dot}`}
+                      aria-hidden
+                    />
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-2">
             <Button
