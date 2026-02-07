@@ -40,7 +40,9 @@ describe("TaskCard", () => {
 
   it("renders creation date", () => {
     renderTaskCard();
-    const dateText = screen.getByText(/today|yesterday|\d+ days ago|\d{2} \w{3}/i);
+    const dateText = screen.getByText(
+      /today|yesterday|\d+ days ago|\d{2} \w{3}/i
+    );
     expect(dateText).toBeInTheDocument();
   });
 

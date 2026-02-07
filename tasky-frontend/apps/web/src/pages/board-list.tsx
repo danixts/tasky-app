@@ -165,7 +165,7 @@ export function BoardListPage() {
                     e.stopPropagation();
                     setBoardToDelete(board);
                   }}
-                  className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg text-(--muted-foreground) opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-500 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+                  className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg text-(--muted-foreground) opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-500 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--ring) md:opacity-0 md:group-hover:opacity-100"
                   aria-label="Delete board"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -177,9 +177,7 @@ export function BoardListPage() {
                 sideOffset={6}
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
-                <p className="text-sm font-medium">
-                  Delete this board?
-                </p>
+                <p className="text-sm font-medium">Delete this board?</p>
                 <p className="mt-1 text-xs text-(--muted-foreground)">
                   All tasks in &quot;{board.name}&quot; will be removed. This
                   cannot be undone.

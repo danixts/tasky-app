@@ -39,8 +39,8 @@ export function TaskActionsModal({
   onOpenChange,
   onSaveEdit,
   onDelete,
-  onMoveStatus,
-  onUpdatePriority,
+  onMoveStatus: _onMoveStatus,
+  onUpdatePriority: _onUpdatePriority,
 }: TaskActionsModalProps) {
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -118,11 +118,11 @@ export function TaskActionsModal({
         overlayClassName="backdrop-blur-sm bg-black/60"
         className={
           "flex max-h-[85dvh] flex-col gap-0 overflow-hidden rounded-2xl border border-(--border) bg-(--background) p-0 shadow-2xl " +
-          "!inset-auto !left-1/2 !top-1/2 !w-[90vw] !max-w-[400px] !-translate-x-1/2 !-translate-y-1/2 " +
+          "!inset-auto !top-1/2 !left-1/2 !w-[90vw] !max-w-[400px] !-translate-x-1/2 !-translate-y-1/2 " +
           "pt-0"
         }
       >
-        <DialogHeader className="flex shrink-0 w-full flex-row items-center justify-between border-b border-(--border) bg-(--card)/40 px-4 py-3 rounded-t-2xl">
+        <DialogHeader className="flex w-full shrink-0 flex-row items-center justify-between rounded-t-2xl border-b border-(--border) bg-(--card)/40 px-4 py-3">
           <DialogTitle className="flex items-center gap-2 text-base font-semibold tracking-tight text-(--foreground)">
             <Pencil className="h-4 w-4 shrink-0 text-(--muted-foreground)" />
             Edit task
@@ -220,7 +220,7 @@ export function TaskActionsModal({
               </div>
             </div>
           </div>
-          <DialogFooter className="shrink-0 flex-row gap-3 border-t border-(--border) bg-(--card)/30 px-4 py-3 rounded-b-2xl">
+          <DialogFooter className="shrink-0 flex-row gap-3 rounded-b-2xl border-t border-(--border) bg-(--card)/30 px-4 py-3">
             <Button
               type="button"
               variant="outline"
@@ -231,7 +231,7 @@ export function TaskActionsModal({
             </Button>
             <Button
               type="submit"
-              className="h-11 min-w-[100px] flex-1 gap-2 rounded-xl font-medium bg-(--primary) text-(--primary-foreground) hover:bg-(--primary)/90 disabled:opacity-50 sm:flex-none"
+              className="h-11 min-w-[100px] flex-1 gap-2 rounded-xl bg-(--primary) font-medium text-(--primary-foreground) hover:bg-(--primary)/90 disabled:opacity-50 sm:flex-none"
               disabled={saving || !editTitle.trim()}
             >
               {saving ? (
