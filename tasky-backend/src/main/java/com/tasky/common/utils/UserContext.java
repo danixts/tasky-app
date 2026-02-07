@@ -30,11 +30,6 @@ public class UserContext {
 
     public UserEntity getAuthenticatedUser() {
         return userRepository.findByUsernameAndStateUser(getUsername(), true)
-                .orElseThrow(() -> new ApiErrorException(
-                        "USER NOT FOUND",
-                        HttpStatus.UNAUTHORIZED,
-                        null,
-                        false
-                ));
+                .orElseThrow(() -> new ApiErrorException("USER NOT FOUND", HttpStatus.UNAUTHORIZED, null, false));
     }
 }

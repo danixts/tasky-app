@@ -166,12 +166,7 @@ public class TaskServiceImpl implements TaskService {
     private TaskEntity findTaskOrThrow(UUID taskId) {
         var userId = userContext.getUserId();
         return taskRepository.findByTaskIdAndUserId(taskId, userId)
-                .orElseThrow(() -> new ApiErrorException(
-                        "TASK NOT FOUND",
-                        HttpStatus.NOT_FOUND,
-                        null,
-                        false
-                ));
+                .orElseThrow(() -> new ApiErrorException("TASK NOT FOUND", HttpStatus.NOT_FOUND, null, false));
     }
 
     private TaskResponse toResponse(TaskEntity entity) {
