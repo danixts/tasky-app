@@ -1,0 +1,32 @@
+services:
+  backend:
+    build:
+      context: ./tasky-backend
+      dockerfile: Dockerfile
+    container_name: tasky-api
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      PORT: ${PORT:-9000}
+      SPRING_PROFILES_ACTIVE: prod
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_NAME: ${DB_NAME:-tasky}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASS: ${DB_PASS:-1234}
+      SQL_CREATE: ${SQL_CREATE:-false}
+      SQL_SHOW: "false"
+      SQL_FORMAT: "false"
+      JWT_TOKEN: ${JWT_TOKEN:-1234}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-2000}
+      DB_MAX_POOL_SIZE: ${DB_MAX_POOL_SIZE:-10}
+      DB_MIN_IDLE: ${DB_MIN_IDLE:-5}
+      DB_IDLE_TIMEOUT: ${DB_IDLE_TIMEOUT}
+      DB_CONNECTION_TIMEOUT: ${DB_CONNECTION_TIMEOUT}
+      DB_MAX_LIFETIME: ${DB_MAX_LIFETIME}
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
