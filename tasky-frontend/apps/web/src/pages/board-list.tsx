@@ -69,13 +69,13 @@ export function BoardListPage() {
 
   const handleConfirmDelete = (board: Board) => {
     const boardId = board.boardId;
+    const backup = board;
+    removeBoard(boardId);
+    setBoardToDelete(null);
     deleteBoard.mutate(boardId, {
-      onSuccess: () => {
-        removeBoard(boardId);
-        setBoardToDelete(null);
-        toast.success("Board deleted", board.name);
-      },
+      onSuccess: () => toast.success("Board deleted", backup.name),
       onError: () => {
+        useBoardsStore.getState().addBoard(backup);
         toast.error("Error", "Could not delete the board");
       },
     });
