@@ -9,9 +9,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://cucu.bo")
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
-                .allowedHeaders("Origin", "Content-Type", "Accept")
-                .allowCredentials(true);
+                .allowedOrigins(
+                        "https://tasky.danyjs.com",
+                        "http://localhost:5173",
+                        "http://localhost:3000",
+                )
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                .allowedHeaders("Origin", "Content-Type", "Accept", "Authorization")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
