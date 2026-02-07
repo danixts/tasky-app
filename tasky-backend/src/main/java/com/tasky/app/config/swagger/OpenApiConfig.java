@@ -5,8 +5,11 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.tags.Tag;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
@@ -17,16 +20,17 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("Tasky API")
                         .version("1.0.0")
-                        .description("RESTful API for task management")
-                        .contact(new Contact()
-                                .name("Tasky Team")
-                                .email("support@tasky.com")))
+                        .description("API for task management - Mini Trello"))
+                .tags(List.of(
+                        new Tag().name("Auth").description("Authentication endpoints"),
+                        new Tag().name("Tasks").description("Task management endpoints (CRUD + Board)")
+                ))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("JWT token for authentication")));
+                                        .type(SecurityScheme.Type.APIKEY)
+                                        .in(SecurityScheme.In.HEADER)
+                                        .name("Authorization")
+                                        .description("JWT token with prefix 'Token'. Example: Token eyJhbGci...")));
     }
 }
