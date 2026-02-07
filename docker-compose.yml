@@ -24,6 +24,7 @@ services:
       DB_IDLE_TIMEOUT: ${DB_IDLE_TIMEOUT:-600000}
       DB_CONNECTION_TIMEOUT: ${DB_CONNECTION_TIMEOUT:-20000}
       DB_MAX_LIFETIME: ${DB_MAX_LIFETIME:-1800000}
+      APP_BASE_URL: ${APP_BASE_URL:-https://localhost:9000}
     networks:
       - dokploy-network
 

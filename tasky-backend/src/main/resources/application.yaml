@@ -46,6 +46,9 @@ springdoc:
   swagger-ui:
     path: /docs
 
+app:
+  base-url: ${APP_BASE_URL:http://localhost:9000}
+
 api:
   v1: /api/v1
 
