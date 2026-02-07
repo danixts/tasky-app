@@ -24,11 +24,12 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                          HttpServletResponse res,
                          AuthenticationException e) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        res.setStatus(404);
+        res.setStatus(HttpStatus.UNAUTHORIZED.value());
+        res.setContentType("application/json");
         PrintWriter writer = res.getWriter();
-        ApiError accessUnauthorized = new ApiError(HttpStatus.BAD_REQUEST);
-        accessUnauthorized.setMessage(e.getMessage());
-        accessUnauthorized.setStatus(HttpStatus.NOT_FOUND);
+        ApiError accessUnauthorized = new ApiError(HttpStatus.UNAUTHORIZED);
+        accessUnauthorized.setMessage("UNAUTHORIZED");
+        accessUnauthorized.setStatus(HttpStatus.UNAUTHORIZED);
         accessUnauthorized.setData(null);
         accessUnauthorized.setSuccess(false);
         mapper.findAndRegisterModules();

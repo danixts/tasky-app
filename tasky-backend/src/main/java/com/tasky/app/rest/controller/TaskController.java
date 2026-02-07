@@ -52,20 +52,20 @@ public class TaskController {
 
     @PostMapping
     @Operation(summary = "Create a new task")
-    public ResponseEntity<SuccessResponse<TaskResponse>> createTask(@RequestBody @Valid CreateTaskRequest request) {
-        return ResponseHandler.success(taskService.createTask(request), "TASK CREATED");
+    public ResponseEntity<SuccessResponse<TaskResponse>> createTask(@RequestBody @Valid CreateTaskRequest body) {
+        return ResponseHandler.success(taskService.createTask(body), "TASK CREATED");
     }
 
     @PutMapping("/{taskId}")
     @Operation(summary = "Update an existing task")
-    public ResponseEntity<SuccessResponse<TaskResponse>> updateTask(@PathVariable UUID taskId, @RequestBody @Valid UpdateTaskRequest request) {
-        return ResponseHandler.success(taskService.updateTask(taskId, request), "TASK UPDATED");
+    public ResponseEntity<SuccessResponse<TaskResponse>> updateTask(@PathVariable UUID taskId, @RequestBody @Valid UpdateTaskRequest body) {
+        return ResponseHandler.success(taskService.updateTask(taskId, body), "TASK UPDATED");
     }
 
     @PatchMapping("/{taskId}/move")
     @Operation(summary = "Move a task to a different status (drag & drop)")
-    public ResponseEntity<SuccessResponse<TaskResponse>> moveTask(@PathVariable UUID taskId, @RequestBody @Valid MoveTaskRequest request) {
-        return ResponseHandler.success(taskService.moveTask(taskId, request.getStatus()), "TASK MOVED");
+    public ResponseEntity<SuccessResponse<TaskResponse>> moveTask(@PathVariable UUID taskId, @RequestBody @Valid MoveTaskRequest body) {
+        return ResponseHandler.success(taskService.moveTask(taskId, body.getStatus()), "TASK MOVED");
     }
 
     @DeleteMapping("/{taskId}")

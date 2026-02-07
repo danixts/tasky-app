@@ -5,6 +5,7 @@ import com.tasky.domain.entity.token.TokenEntity;
 import com.tasky.domain.entity.token.TokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +25,7 @@ public class JwtToken {
     @Value("${dev.app.jwtSecret}")
     private String secret;
 
+    @Getter
     @Value("${dev.app.jwtExpirationMs}")
     private Long expireTimeToken;
 

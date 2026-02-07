@@ -10,7 +10,7 @@ import lombok.Setter;
 public class AuthenticationResponse {
     private String token;
     private String tokenType;
-    private Integer expiresIn;
+    private Long expiresIn;
     private String refreshToken;
     private String username;
 }

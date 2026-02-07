@@ -5,6 +5,7 @@ import com.tasky.common.model.SuccessResponse;
 import com.tasky.common.utils.UserContext;
 import com.tasky.domain.entity.auth.dto.request.AuthenticationRequest;
 import com.tasky.domain.entity.auth.dto.request.RefreshTokenRequest;
+import com.tasky.domain.entity.auth.dto.request.RegisterRequest;
 import com.tasky.domain.entity.auth.dto.response.AuthenticationResponse;
 import com.tasky.domain.entity.auth.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,18 +29,22 @@ public class AuthController {
     private final AuthenticationService authenticationService;
     private final UserContext userContext;
 
+    @PostMapping("/register")
+    @Operation(summary = "Register a new user and get JWT token")
+    public ResponseEntity<SuccessResponse<AuthenticationResponse>> register(@RequestBody @Valid RegisterRequest body) {
+        return ResponseHandler.success(authenticationService.register(body), "USER REGISTERED");
+    }
+
     @PostMapping("/login")
     @Operation(summary = "Login and get JWT token")
-    public ResponseEntity<SuccessResponse<AuthenticationResponse>> login(
-            @RequestBody @Valid AuthenticationRequest request) {
-        return ResponseHandler.success(authenticationService.login(request));
+    public ResponseEntity<SuccessResponse<AuthenticationResponse>> login(@RequestBody @Valid AuthenticationRequest body) {
+        return ResponseHandler.success(authenticationService.login(body));
     }
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token using a valid refresh token")
-    public ResponseEntity<SuccessResponse<AuthenticationResponse>> refreshToken(
-            @RequestBody @Valid RefreshTokenRequest request) {
-        return ResponseHandler.success(authenticationService.refreshToken(request));
+    public ResponseEntity<SuccessResponse<AuthenticationResponse>> refreshToken(@RequestBody @Valid RefreshTokenRequest body) {
+        return ResponseHandler.success(authenticationService.refreshToken(body));
     }
 
     @PostMapping("/logout")
