@@ -21,7 +21,7 @@ public class TokenEntity {
     @Enumerated(EnumType.STRING)
     private TokenType tokenType;
 
-    @Column
+    @Column(nullable = false)
     private boolean revoked;
 
     @ManyToOne
