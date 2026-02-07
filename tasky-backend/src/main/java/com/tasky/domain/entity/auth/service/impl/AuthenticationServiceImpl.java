@@ -8,6 +8,7 @@ import com.tasky.domain.entity.auth.dto.request.RefreshTokenRequest;
 import com.tasky.domain.entity.auth.dto.request.RegisterRequest;
 import com.tasky.domain.entity.auth.dto.response.AuthenticationResponse;
 import com.tasky.domain.entity.auth.service.AuthenticationService;
+import com.tasky.domain.entity.board.BoardRepository;
 import com.tasky.domain.entity.role.RoleEntity;
 import com.tasky.domain.entity.role.RoleRepository;
 import com.tasky.domain.entity.token.TokenEntity;
@@ -45,6 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TokenRepository tokenRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final BoardRepository boardRepository;
     private final JwtToken jwtService;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -88,6 +90,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .refreshToken(refreshToken)
                 .tokenType("token")
                 .expiresIn(jwtService.getExpireTimeToken())
+                .boards(getBoardsByUser(user.getUserId()))
                 .build();
     }
 
@@ -123,6 +126,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .refreshToken(refreshToken)
                 .tokenType("token")
                 .expiresIn(jwtService.getExpireTimeToken())
+                .boards(getBoardsByUser(user.getUserId()))
                 .build();
     }
 
@@ -190,5 +194,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         token.setRevoked(false);
         token.setTokenType(tokenType);
         tokenRepository.save(token);
+    }
+
+    private List<AuthenticationResponse.BoardInfo> getBoardsByUser(java.util.UUID userId) {
+        return boardRepository.findAllByUserIdOrderByCreatedAtAsc(userId).stream()
+                .map(b -> AuthenticationResponse.BoardInfo.builder()
+                        .boardId(b.getBoardId())
+                        .name(b.getName())
+                        .build())
+                .toList();
     }
 }

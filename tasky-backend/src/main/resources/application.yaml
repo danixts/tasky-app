@@ -36,6 +36,10 @@ spring:
     baseline-version: 0
   jackson:
     time-zone: America/La_Paz
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=${CACHE_MAX_SIZE:500},expireAfterWrite=${CACHE_EXPIRE_MINUTES:5}m
 
 dev:
   app:

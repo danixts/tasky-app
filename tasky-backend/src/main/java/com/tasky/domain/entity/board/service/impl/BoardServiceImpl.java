@@ -1,5 +1,6 @@
 package com.tasky.domain.entity.board.service.impl;
 
+import com.tasky.app.config.cache.CacheConfig;
 import com.tasky.common.exception.ApiErrorException;
 import com.tasky.common.utils.UserContext;
 import com.tasky.domain.entity.board.BoardEntity;
@@ -13,6 +14,9 @@ import com.tasky.domain.entity.board.dto.UpdateBoardBody;
 import com.tasky.domain.entity.board.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,7 @@ public class BoardServiceImpl implements BoardService {
     private final UserContext userContext;
 
     @Override
+    @Cacheable(value = CacheConfig.BOARDS, key = "@userContext.getUserId()")
     public List<BoardResponse> listBoardsByUser() {
         var userId = userContext.getUserId();
         return boardRepository.findAllByUserIdOrderByCreatedAtAsc(userId)
@@ -44,12 +49,14 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    @Cacheable(value = CacheConfig.BOARD, key = "@userContext.getUserId() + ':' + #boardId")
     public BoardResponse getBoard(UUID boardId) {
         return toBoardResponse(findBoardOrThrow(boardId));
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheConfig.BOARDS, key = "@userContext.getUserId()")
     public BoardResponse createBoard(CreateBoardBody body) {
         var userId = userContext.getUserId();
         var now = LocalDateTime.now();
@@ -66,6 +73,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
+    @CacheEvict(value = { CacheConfig.BOARDS, CacheConfig.BOARD, CacheConfig.BOARD_STATUSES, CacheConfig.TASK_BOARD }, key = "@userContext.getUserId() + ':' + #boardId")
     public BoardResponse updateBoard(UUID boardId, UpdateBoardBody body) {
         var board = findBoardOrThrow(boardId);
         board.setName(body.getName());
@@ -74,12 +82,17 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = {CacheConfig.BOARDS, CacheConfig.BOARD, CacheConfig.BOARD_STATUSES, CacheConfig.TASK_BOARD}, key = "@userContext.getUserId() + ':' + #boardId"),
+            @CacheEvict(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
+    })
     public void deleteBoard(UUID boardId) {
         var board = findBoardOrThrow(boardId);
         boardRepository.delete(board);
     }
 
     @Override
+    @Cacheable(value = CacheConfig.BOARD_STATUSES, key = "@userContext.getUserId() + ':' + #boardId")
     public List<BoardStatusResponse> listStatuses(UUID boardId) {
         findBoardOrThrow(boardId);
         return boardStatusRepository.findAllByBoardIdOrderByPositionAsc(boardId)

@@ -1,5 +1,6 @@
 package com.tasky.domain.entity.task.service.impl;
 
+import com.tasky.app.config.cache.CacheConfig;
 import com.tasky.common.exception.ApiErrorException;
 import com.tasky.common.utils.UserContext;
 import com.tasky.domain.entity.board.BoardEntity;
@@ -20,6 +21,10 @@ import com.tasky.domain.entity.task.dto.response.TaskResponse;
 import com.tasky.domain.entity.task.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,8 +54,10 @@ public class TaskServiceImpl implements TaskService {
     private final BoardRepository boardRepository;
     private final BoardStatusRepository boardStatusRepository;
     private final UserContext userContext;
+    private final CacheManager cacheManager;
 
     @Override
+    @Cacheable(value = CacheConfig.TASK_BOARD, key = "@userContext.getUserId() + ':' + #boardId")
     public TaskBoardResponse getBoard(UUID boardId) {
         var board = findBoardOrThrow(boardId);
         var statuses = boardStatusRepository.findAllByBoardIdOrderByPositionAsc(boardId);
@@ -85,6 +92,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Cacheable(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
     public List<TaskResponse> getTasksByUser() {
         var userId = userContext.getUserId();
         var tasks = taskRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
@@ -104,6 +112,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Cacheable(value = CacheConfig.TASK, key = "@userContext.getUserId() + ':' + #taskId")
     public TaskResponse getTask(UUID taskId) {
         var task = findTaskOrThrow(taskId);
         var statusCode = boardStatusRepository.findById(task.getStatusId())
@@ -114,6 +123,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.TASK_BOARD, key = "@userContext.getUserId() + ':' + #body.boardId"),
+            @CacheEvict(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
+    })
     public TaskResponse createTask(CreateTaskBody body) {
         findBoardOrThrow(body.getBoardId());
         var statuses = boardStatusRepository.findAllByBoardIdOrderByPositionAsc(body.getBoardId());
@@ -148,6 +161,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.TASK, key = "@userContext.getUserId() + ':' + #taskId"),
+            @CacheEvict(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
+    })
     public TaskResponse updateTask(UUID taskId, UpdateTaskBody body) {
         var task = findTaskOrThrow(taskId);
         task.setTitle(body.getTitle());
@@ -174,6 +191,7 @@ public class TaskServiceImpl implements TaskService {
         }
 
         var saved = taskRepository.save(task);
+        evictTaskBoard(saved.getBoardId());
         var resolvedStatus = statusById.get(saved.getStatusId());
         var statusCode = resolvedStatus != null ? resolvedStatus.getCode() : "TODO";
         return toResponse(saved, statusCode);
@@ -181,6 +199,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.TASK, key = "@userContext.getUserId() + ':' + #taskId"),
+            @CacheEvict(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
+    })
     public TaskResponse moveTask(UUID taskId, MoveTaskBody body) {
         var task = findTaskOrThrow(taskId);
         findBoardOrThrow(task.getBoardId());
@@ -197,14 +219,29 @@ public class TaskServiceImpl implements TaskService {
         task.setPosition(body.getPosition());
 
         var saved = taskRepository.save(task);
+        evictTaskBoard(saved.getBoardId());
         return toResponse(saved, statusById.get(body.getStatusId()).getCode());
     }
 
     @Override
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = CacheConfig.TASK, key = "@userContext.getUserId() + ':' + #taskId"),
+            @CacheEvict(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
+    })
     public void deleteTask(UUID taskId) {
         var task = findTaskOrThrow(taskId);
+        var boardId = task.getBoardId();
         taskRepository.delete(task);
+        evictTaskBoard(boardId);
+    }
+
+    private void evictTaskBoard(UUID boardId) {
+        var cache = cacheManager.getCache(CacheConfig.TASK_BOARD);
+        if (cache != null) {
+            var key = userContext.getUserId() + ":" + boardId;
+            cache.evict(key);
+        }
     }
 
     private BoardEntity findBoardOrThrow(UUID boardId) {

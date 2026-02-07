@@ -99,5 +99,17 @@ public class StringTransform {
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
     }
+
+    public static String formatJsonToSingleLine(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            return json;
+        }
+
+        try {
+            return json.replaceAll("\\s+", " ").trim();
+        } catch (Exception e) {
+            return json;
+        }
+    }
 }
 
