@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { screen, fireEvent } from "@testing-library/react";
+import { screen, fireEvent, within } from "@testing-library/react";
 import { renderWithProviders } from "@/test/test-utils";
 import { TaskCard } from "../task-card";
 import type { Task } from "@tasky/services";
@@ -59,7 +59,10 @@ describe("TaskCard", () => {
       btn.querySelector(".lucide-trash-2")
     );
     if (deleteBtn) fireEvent.click(deleteBtn);
-    const confirmBtn = screen.getByRole("button", { name: /^delete$/i });
+    const dialog = screen.getByRole("dialog");
+    const confirmBtn = within(dialog).getByRole("button", {
+      name: /^delete$/i,
+    });
     fireEvent.click(confirmBtn);
     expect(onDelete).toHaveBeenCalledWith("123");
   });

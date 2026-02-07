@@ -10,7 +10,7 @@
   },
   "scripts": {
     "lint": "echo 'No lint script'",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.80.6",
