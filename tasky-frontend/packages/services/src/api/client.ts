@@ -45,7 +45,10 @@ export function isAuthenticated(): boolean {
 }
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL != null ? import.meta.env.VITE_API_URL : "http://localhost:9000",
+  baseURL:
+    import.meta.env.VITE_API_URL != null
+      ? import.meta.env.VITE_API_URL
+      : "http://localhost:9000",
   headers: {
     "Content-Type": "application/json",
   },
