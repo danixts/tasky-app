@@ -28,6 +28,23 @@ services:
     networks:
       - dokploy-network
 
+  tasky-frontend:
+    build:
+      context: ./tasky-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+    container_name: tasky-web
+    restart: unless-stopped
+    ports:
+      - "8088:8088"
+    environment:
+      PORT: 8088
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://tasky-backend:9000}
+    depends_on:
+      - tasky-backend
+    networks:
+      - dokploy-network
 networks:
   dokploy-network:
     external: true

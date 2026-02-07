@@ -11,7 +11,13 @@
     "format:check": "prettier --check .",
     "lint": "turbo run lint",
     "test": "turbo run test",
-    "preview": "turbo run preview --filter=web"
+    "preview": "turbo run preview --filter=web",
+    "server": "node server.mjs"
+  },
+  "dependencies": {
+    "@fastify/http-proxy": "^11.1.1",
+    "@fastify/static": "^8.0.1",
+    "fastify": "^5.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
