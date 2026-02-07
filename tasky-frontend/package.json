@@ -7,12 +7,16 @@
   "scripts": {
     "dev": "turbo run dev --filter=web",
     "build": "turbo run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "preview": "turbo run preview --filter=web"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "turbo": "^2.8.3",
     "typescript": "~5.9.3"
   }

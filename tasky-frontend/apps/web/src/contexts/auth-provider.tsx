@@ -1,54 +1,82 @@
-import { useCallback, useMemo, useState, useEffect, type ReactNode } from 'react'
-import { useLogin, useRegister, useLogout, getUsername, isAuthenticated, clearAuth } from '@tasky/services'
-import { useQueryClient } from '@tanstack/react-query'
-import { AuthContext, type AuthContextType } from './auth-context'
+import {
+  useCallback,
+  useMemo,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
+import {
+  useLogin,
+  useRegister,
+  useLogout,
+  getUsername,
+  isAuthenticated,
+  clearAuth,
+} from "@tasky/services";
+import { useQueryClient } from "@tanstack/react-query";
+import { AuthContext, type AuthContextType } from "./auth-context";
 
-export function AuthProvider({ children }: { readonly children: ReactNode }) {
-  const queryClient = useQueryClient()
-  const [username, setUsername] = useState<string | null>(getUsername)
-  const loginMutation = useLogin()
-  const registerMutation = useRegister()
-  const logoutMutation = useLogout()
+interface AuthProviderProps {
+  readonly children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const queryClient = useQueryClient();
+  const [username, setUsername] = useState<string | null>(getUsername);
+  const loginMutation = useLogin();
+  const registerMutation = useRegister();
+  const logoutMutation = useLogout();
 
   useEffect(() => {
-    setUsername(getUsername())
-  }, [])
+    setUsername(getUsername());
+  }, []);
 
-  const login = useCallback<AuthContextType['login']>(
+  const login = useCallback<AuthContextType["login"]>(
     async (user: string, password: string) => {
       try {
-        const result = await loginMutation.mutateAsync({ username: user, password })
-        setUsername(result.username)
-        return { error: null }
+        const result = await loginMutation.mutateAsync({
+          username: user,
+          password,
+        });
+        setUsername(result.username);
+        return { error: null };
       } catch (err) {
-        return { error: err instanceof Error ? err : new Error('Error al iniciar sesion') }
+        return {
+          error: err instanceof Error ? err : new Error("Login failed"),
+        };
       }
     },
     [loginMutation]
-  )
+  );
 
-  const register = useCallback<AuthContextType['register']>(
+  const register = useCallback<AuthContextType["register"]>(
     async (user: string, email: string, password: string) => {
       try {
-        const result = await registerMutation.mutateAsync({ username: user, email, password })
-        setUsername(result.username)
-        return { error: null }
+        const result = await registerMutation.mutateAsync({
+          username: user,
+          email,
+          password,
+        });
+        setUsername(result.username);
+        return { error: null };
       } catch (err) {
-        return { error: err instanceof Error ? err : new Error('Error al registrarse') }
+        return {
+          error: err instanceof Error ? err : new Error("Registration failed"),
+        };
       }
     },
     [registerMutation]
-  )
+  );
 
-  const logout = useCallback<AuthContextType['logout']>(async () => {
+  const logout = useCallback<AuthContextType["logout"]>(async () => {
     try {
-      await logoutMutation.mutateAsync()
+      await logoutMutation.mutateAsync();
     } catch {
-      clearAuth()
+      clearAuth();
     }
-    setUsername(null)
-    queryClient.clear()
-  }, [logoutMutation, queryClient])
+    setUsername(null);
+    queryClient.clear();
+  }, [logoutMutation, queryClient]);
 
   const contextValue = useMemo<AuthContextType>(
     () => ({
@@ -59,7 +87,9 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       logout,
     }),
     [username, login, register, logout]
-  )
+  );
 
-  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
+  );
 }

@@ -5,16 +5,31 @@ export type {
   AuthResponse,
   Task,
   TaskStatus,
+  TaskPriority,
   TaskBoard,
+  TaskBoardResponse,
+  Board,
+  BoardStatus,
+  BoardColumn,
+  CreateBoardRequest,
   CreateTaskRequest,
   UpdateTaskRequest,
   MoveTaskRequest,
-} from './types'
+} from "./types";
 
-export { apiClient, getToken, getRefreshToken, getUsername, saveAuth, clearAuth, isAuthenticated } from './api/client'
-export type { ApiResponse } from './api/client'
+export {
+  apiClient,
+  getToken,
+  getRefreshToken,
+  getUsername,
+  saveAuth,
+  clearAuth,
+  isAuthenticated,
+} from "./api/client";
+export type { ApiResponse } from "./api/client";
 
-export { useLogin, useRegister, useLogout } from './hooks/use-auth'
+export { useLogin, useRegister, useLogout } from "./hooks/use-auth";
+export { useBoards, useCreateBoard } from "./hooks/use-boards";
 export {
   useTasks,
   useTask,
@@ -23,6 +38,6 @@ export {
   useUpdateTask,
   useMoveTask,
   useDeleteTask,
-} from './hooks/use-tasks'
+} from "./hooks/use-tasks";
 
-export { queryKeys } from './query-keys'
+export { queryKeys } from "./query-keys";
