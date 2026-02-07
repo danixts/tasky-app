@@ -35,7 +35,7 @@ public class JwtUserDetails implements UserDetailsService {
         try {
             new AccountStatusUserDetailsChecker().check(customUserDetails);
         } catch (AccountStatusException e) {
-            log.error("Could not authenticate user", e);
+            log.error("Account status error: {}", e.getMessage());
             throw new ApiErrorException(e.getMessage());
         }
 

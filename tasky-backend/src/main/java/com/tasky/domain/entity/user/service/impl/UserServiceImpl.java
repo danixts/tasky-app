@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserEntity findByUser(String username) {
-        return userRepository.findByUsernameAndStateUser(username, true)
+        return userRepository.findByUsernameOrEmailAndStateUser(username, username, true)
                 .orElseThrow(
                         () -> new ApiErrorException("USER NOT FOUND", HttpStatus.NOT_FOUND, null, false)
                 );

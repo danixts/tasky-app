@@ -33,7 +33,7 @@ import java.util.Objects;
 public class CustomExceptionHandler {
     @ExceptionHandler(value = JwtException.class)
     public ResponseEntity<Object> handleJwtException(JwtException ex) {
-        log.error(ex.getMessage(), ex);
+        log.error("JWT error: {}", ex.getMessage());
         ApiError apiError = new ApiError();
         apiError.setStatus(HttpStatus.UNAUTHORIZED);
         apiError.setData(List.of());
@@ -114,7 +114,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(value = HttpMessageNotWritableException.class)
     public ResponseEntity<Object> handleHttpMessageNotWritableException(HttpMessageNotWritableException ex) {
-        log.error("Error writing JSON response: {}", ex.getMessage(), ex);
+        log.error("JSON serialization error: {}", ex.getMessage());
         ApiError apiError = new ApiError();
         apiError.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
         apiError.setData(List.of());
@@ -126,7 +126,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     protected ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-        log.error(ex.getMessage(), ex);
+        log.error("Database constraint error: {}", ex.getMessage());
         if (ex.getCause() instanceof ConstraintViolationException) {
             return buildResponseEntity(new ApiError(HttpStatus.CONFLICT, "Database error", ex.getCause()));
         }
@@ -135,7 +135,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     protected ResponseEntity<Object> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        log.error(ex.getMessage(), ex);
+        log.error("Invalid request parameter: {}", ex.getMessage());
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
         apiError.setMessage(String.format("The parameter '%s' of value '%s' could not be converted to type '%s'", ex.getName(), ex.getValue(), Objects.requireNonNull(ex.getRequiredType()).getSimpleName()));
         return buildResponseEntity(apiError);
@@ -194,7 +194,7 @@ public class CustomExceptionHandler {
     }
 
     private ApiError buildApiError(Exception ex, HttpStatus httpStatus) {
-        log.error(ex.getMessage(), ex);
+        log.error("Request processing error: {}", ex.getMessage());
         ApiError apiError = new ApiError();
         apiError.setStatus(httpStatus);
         apiError.setData(List.of());
