@@ -1,3 +1,47 @@
+server:
+  port: ${PORT:8080}
+
 spring:
-  application:
-    name: app
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:localhost:5432}/${DB_NAME:core_manager}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASS:password}
+    hikari:
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:20}
+      minimum-idle: ${DB_MIN_IDLE:5}
+      idle-timeout: ${DB_IDLE_TIMEOUT:300000}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:30000}
+      max-lifetime: ${DB_MAX_LIFETIME:1200000}
+      pool-name: HikariPool-Core
+  jpa:
+    show-sql: ${SQL_SHOW:false}
+    hibernate:
+      ddl-auto: ${SQL_CREATE:validate}
+    properties:
+      hibernate:
+        format_sql: ${SQL_FORMAT:true}
+        jdbc:
+          time_zone: UTC
+          lob:
+            non_contextual_creation: false
+        show_sql: ${SQL_SHOW:false}
+    open-in-view: off
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+  jackson:
+    time-zone: America/La_Paz
+
+dev:
+  app:
+    jwtSecret: ${JWT_TOKEN:s3cr3t_c0dex}
+    jwtExpirationMs: ${JWT_EXPIRATION:86000}
+
+api:
+  v1: /api/v1
+

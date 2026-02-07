@@ -1,0 +1,70 @@
+package com.tasky.app.config.security;
+
+
+import com.tasky.app.config.security.exceptions.ExceptionHandlerFilter;
+import com.tasky.app.config.security.exceptions.JwtAccessDeniedHandler;
+import com.tasky.app.config.security.exceptions.JwtAuthenticationEntryPoint;
+import com.tasky.app.config.security.jwt.JwtRequestFilter;
+import com.tasky.app.config.security.jwt.JwtUserDetails;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    private final ExceptionHandlerFilter exceptionHandlerFilter;
+    private final JwtRequestFilter jwtRequestFilter;
+    private final JwtUserDetails jwtUserDetails;
+
+    public SecurityConfig(ExceptionHandlerFilter exceptionHandlerFilter,
+                          JwtRequestFilter jwtRequestFilter,
+                          @Qualifier("jwtUserDetailsService") JwtUserDetails jwtUserDetails) {
+        this.exceptionHandlerFilter = exceptionHandlerFilter;
+        this.jwtRequestFilter = jwtRequestFilter;
+        this.jwtUserDetails = jwtUserDetails;
+    }
+
+    private static final String[] AUTH_WHITELIST = {
+            "/api/v1/auth/login",
+    };
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.addFilterBefore(exceptionHandlerFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        http.authorizeHttpRequests(authHttp -> authHttp
+                .requestMatchers(AUTH_WHITELIST).permitAll()
+                .anyRequest().authenticated()
+        );
+        http.userDetailsService(jwtUserDetails);
+        http.exceptionHandling(exception -> {
+            exception.authenticationEntryPoint(new JwtAuthenticationEntryPoint());
+            exception.accessDeniedHandler(new JwtAccessDeniedHandler());
+        });
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    @Bean
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOrigin("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+}
