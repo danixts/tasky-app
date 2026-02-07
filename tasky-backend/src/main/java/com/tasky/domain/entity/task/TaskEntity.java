@@ -1,6 +1,7 @@
 package com.tasky.domain.entity.task;
 
-
+import com.tasky.domain.entity.board.BoardEntity;
+import com.tasky.domain.entity.board.BoardStatusEntity;
 import com.tasky.domain.entity.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,10 +20,10 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TaskEntity {
     @Id
-    @Column(columnDefinition = "uuid")
+    @Column(name = "task_id", columnDefinition = "uuid")
     private UUID taskId;
 
-    @Column(nullable = false, columnDefinition = "varchar")
+    @Column(nullable = false)
     private String title;
 
     @Column(length = 500)
@@ -30,10 +31,19 @@ public class TaskEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TaskStatus status;
+    private TaskPriority priority = TaskPriority.NORMAL;
 
     @Column(name = "user_id", nullable = false, columnDefinition = "uuid")
     private UUID userId;
+
+    @Column(name = "board_id", nullable = false, columnDefinition = "uuid")
+    private UUID boardId;
+
+    @Column(name = "status_id", nullable = false, columnDefinition = "uuid")
+    private UUID statusId;
+
+    @Column(nullable = false)
+    private Integer position = 0;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -44,6 +54,14 @@ public class TaskEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", insertable = false, updatable = false)
+    private BoardEntity board;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "status_id", insertable = false, updatable = false)
+    private BoardStatusEntity status;
 
     @PreUpdate
     protected void onUpdate() {

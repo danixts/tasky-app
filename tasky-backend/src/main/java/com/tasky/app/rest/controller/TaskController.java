@@ -1,13 +1,11 @@
 package com.tasky.app.rest.controller;
 
-
 import com.tasky.common.model.ResponseHandler;
 import com.tasky.common.model.SuccessResponse;
-import com.tasky.common.utils.UserContext;
 import com.tasky.domain.entity.task.TaskStatus;
-import com.tasky.domain.entity.task.dto.request.CreateTaskRequest;
-import com.tasky.domain.entity.task.dto.request.MoveTaskRequest;
-import com.tasky.domain.entity.task.dto.request.UpdateTaskRequest;
+import com.tasky.domain.entity.task.dto.request.CreateTaskBody;
+import com.tasky.domain.entity.task.dto.request.MoveTaskBody;
+import com.tasky.domain.entity.task.dto.request.UpdateTaskBody;
 import com.tasky.domain.entity.task.dto.response.TaskBoardResponse;
 import com.tasky.domain.entity.task.dto.response.TaskResponse;
 import com.tasky.domain.entity.task.service.TaskService;
@@ -32,9 +30,9 @@ public class TaskController {
     private final TaskService taskService;
 
     @GetMapping("/board")
-    @Operation(summary = "Get tasks grouped by status (board view for drag & drop)")
-    public ResponseEntity<SuccessResponse<TaskBoardResponse>> getBoard() {
-        return ResponseHandler.success(taskService.getBoard());
+    @Operation(summary = "Get board with tasks grouped by status")
+    public ResponseEntity<SuccessResponse<TaskBoardResponse>> getBoard(@RequestParam UUID boardId) {
+        return ResponseHandler.success(taskService.getBoard(boardId));
     }
 
     @GetMapping
@@ -52,20 +50,20 @@ public class TaskController {
 
     @PostMapping
     @Operation(summary = "Create a new task")
-    public ResponseEntity<SuccessResponse<TaskResponse>> createTask(@RequestBody @Valid CreateTaskRequest body) {
+    public ResponseEntity<SuccessResponse<TaskResponse>> createTask(@RequestBody @Valid CreateTaskBody body) {
         return ResponseHandler.success(taskService.createTask(body), "TASK CREATED");
     }
 
     @PutMapping("/{taskId}")
     @Operation(summary = "Update an existing task")
-    public ResponseEntity<SuccessResponse<TaskResponse>> updateTask(@PathVariable UUID taskId, @RequestBody @Valid UpdateTaskRequest body) {
+    public ResponseEntity<SuccessResponse<TaskResponse>> updateTask(@PathVariable UUID taskId, @RequestBody @Valid UpdateTaskBody body) {
         return ResponseHandler.success(taskService.updateTask(taskId, body), "TASK UPDATED");
     }
 
     @PatchMapping("/{taskId}/move")
-    @Operation(summary = "Move a task to a different status (drag & drop)")
-    public ResponseEntity<SuccessResponse<TaskResponse>> moveTask(@PathVariable UUID taskId, @RequestBody @Valid MoveTaskRequest body) {
-        return ResponseHandler.success(taskService.moveTask(taskId, body.getStatus()), "TASK MOVED");
+    @Operation(summary = "Move a task to a different status/position (drag & drop)")
+    public ResponseEntity<SuccessResponse<TaskResponse>> moveTask(@PathVariable UUID taskId, @RequestBody @Valid MoveTaskBody body) {
+        return ResponseHandler.success(taskService.moveTask(taskId, body), "TASK MOVED");
     }
 
     @DeleteMapping("/{taskId}")

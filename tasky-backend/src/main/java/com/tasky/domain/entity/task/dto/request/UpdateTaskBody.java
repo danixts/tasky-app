@@ -1,5 +1,6 @@
 package com.tasky.domain.entity.task.dto.request;
 
+import com.tasky.domain.entity.task.TaskPriority;
 import com.tasky.domain.entity.task.TaskStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,9 +8,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
-public class CreateTaskRequest {
+public class UpdateTaskBody {
 
     @NotBlank(message = "Title is required")
     @Size(max = 255, message = "Title must be at most 255 characters")
@@ -20,4 +23,8 @@ public class CreateTaskRequest {
 
     @NotNull(message = "Status is required")
     private TaskStatus status;
+
+    private TaskPriority priority;
+
+    private UUID statusId;
 }

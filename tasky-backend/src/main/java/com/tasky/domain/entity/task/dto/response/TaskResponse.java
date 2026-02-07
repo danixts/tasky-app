@@ -1,5 +1,6 @@
 package com.tasky.domain.entity.task.dto.response;
 
+import com.tasky.domain.entity.task.TaskPriority;
 import com.tasky.domain.entity.task.TaskStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +15,10 @@ public class TaskResponse {
     private String title;
     private String description;
     private TaskStatus status;
+    private TaskPriority priority;
+    private UUID boardId;
+    private UUID statusId;
+    private Integer position;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

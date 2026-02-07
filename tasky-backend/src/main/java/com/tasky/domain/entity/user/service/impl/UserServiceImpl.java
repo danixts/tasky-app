@@ -2,7 +2,6 @@ package com.tasky.domain.entity.user.service.impl;
 
 
 import com.tasky.common.exception.ApiErrorException;
-import com.tasky.common.utils.UserContext;
 import com.tasky.domain.entity.user.UserEntity;
 import com.tasky.domain.entity.user.dto.ReadUserDto;
 import com.tasky.domain.entity.user.repository.UserRepository;
@@ -15,12 +14,9 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final UserContext userContext;
 
-    public UserServiceImpl(UserRepository userRepository,
-                           UserContext userContext) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userContext = userContext;
     }
 
     private UserEntity findByUser(String username) {
