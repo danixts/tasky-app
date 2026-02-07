@@ -116,7 +116,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
           length="80vh"
         />
       </div>
-      <div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-20 sm:top-4 sm:right-4">
+      <div className="absolute top-[max(0.75rem,env(safe-area-inset-top))] right-[max(0.75rem,env(safe-area-inset-right))] z-30 sm:top-4 sm:right-4">
         <AnimatedThemeToggler theme={theme} onThemeChange={setTheme} />
       </div>
       <div

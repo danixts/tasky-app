@@ -4,6 +4,7 @@ import {
   createRouter,
   Outlet,
   Navigate,
+  useLocation,
 } from "@tanstack/react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
@@ -19,11 +20,19 @@ import { useAuth } from "@/contexts/auth-context";
 
 function RootComponent() {
   const { theme } = useTheme();
+  const location = useLocation();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Toaster theme={theme} />
-        <Outlet />
+        <div className="flex min-h-dvh flex-col">
+          <Toaster theme={theme} />
+          <div
+            key={location.pathname}
+            className="view-enter flex min-h-0 flex-1 flex-col"
+          >
+            <Outlet />
+          </div>
+        </div>
       </AuthProvider>
     </QueryClientProvider>
   );

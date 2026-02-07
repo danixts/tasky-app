@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { taskBoardQueryOptions, useBoards, useCreateBoard } from "@tasky/services";
+import {
+  taskBoardQueryOptions,
+  useBoards,
+  useCreateBoard,
+  useDeleteBoard,
+} from "@tasky/services";
+import type { Board } from "@tasky/services";
 import {
   Button,
   Card,
@@ -10,22 +16,27 @@ import {
   CardTitle,
   Input,
   LightRays,
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
   Skeleton,
 } from "@tasky/ui";
 import { useToast } from "@/hooks/use-toast";
 import { useBoardsStore } from "@/stores/boards-store";
 import { useTheme } from "@/contexts/theme-context";
-import { LayoutDashboard, Plus } from "lucide-react";
+import { LayoutDashboard, Plus, Trash2 } from "lucide-react";
 
 export function BoardListPage() {
   const queryClient = useQueryClient();
   const { data: serverBoards, isLoading } = useBoards();
-  const { mergeBoards, boards } = useBoardsStore();
+  const { mergeBoards, boards, removeBoard } = useBoardsStore();
   const createBoard = useCreateBoard();
+  const deleteBoard = useDeleteBoard();
   const toast = useToast();
   const { theme } = useTheme();
   const [newBoardName, setNewBoardName] = useState("");
   const [showNewBoard, setShowNewBoard] = useState(false);
+  const [boardToDelete, setBoardToDelete] = useState<Board | null>(null);
   const isDark = theme === "dark";
   const raysColor = isDark
     ? "rgba(100, 180, 220, 0.04)"
@@ -54,6 +65,20 @@ export function BoardListPage() {
         onError: () => toast.error("Error", "Could not create the board"),
       }
     );
+  };
+
+  const handleConfirmDelete = (board: Board) => {
+    const boardId = board.boardId;
+    deleteBoard.mutate(boardId, {
+      onSuccess: () => {
+        removeBoard(boardId);
+        setBoardToDelete(null);
+        toast.success("Board deleted", board.name);
+      },
+      onError: () => {
+        toast.error("Error", "Could not delete the board");
+      },
+    });
   };
 
   function renderBoardListContent() {
@@ -103,27 +128,86 @@ export function BoardListPage() {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {displayBoards.map((board) => (
-          <Link
-            key={board.boardId}
-            to="/board/$boardId"
-            params={{ boardId: board.boardId }}
-            className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
-            onMouseEnter={() =>
-              void queryClient.prefetchQuery(taskBoardQueryOptions(board.boardId))
-            }
-          >
-            <Card className="h-32 border-(--border) bg-(--card)/70 backdrop-blur-md transition-all duration-200 hover:border-(--primary)/40 hover:bg-(--card)/85 hover:shadow-md dark:bg-(--card)/60 dark:hover:bg-(--card)/75">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base text-(--foreground)">
-                  <LayoutDashboard className="h-4 w-4 shrink-0 text-(--muted-foreground)" />
-                  <span className="truncate">{board.name}</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-xs text-(--muted-foreground)">Open board</p>
-              </CardContent>
-            </Card>
-          </Link>
+          <div key={board.boardId} className="group relative">
+            <Link
+              to="/board/$boardId"
+              params={{ boardId: board.boardId }}
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+              onMouseEnter={() =>
+                void queryClient.prefetchQuery(
+                  taskBoardQueryOptions(board.boardId)
+                )
+              }
+            >
+              <Card className="h-32 border-(--border) bg-(--card)/70 backdrop-blur-md transition-all duration-200 hover:border-(--primary)/40 hover:bg-(--card)/85 hover:shadow-md dark:bg-(--card)/60 dark:hover:bg-(--card)/75">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base text-(--foreground)">
+                    <LayoutDashboard className="h-4 w-4 shrink-0 text-(--muted-foreground)" />
+                    <span className="truncate">{board.name}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <p className="text-xs text-(--muted-foreground)">
+                    Open board
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Popover
+              open={boardToDelete?.boardId === board.boardId}
+              onOpenChange={(open) => !open && setBoardToDelete(null)}
+            >
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setBoardToDelete(board);
+                  }}
+                  className="absolute top-2 right-2 flex h-8 w-8 items-center justify-center rounded-lg text-(--muted-foreground) opacity-100 transition-opacity hover:bg-red-500/10 hover:text-red-500 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--ring)"
+                  aria-label="Delete board"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-56 bg-(--popover) p-3 shadow-lg"
+                align="end"
+                sideOffset={6}
+                onOpenAutoFocus={(e) => e.preventDefault()}
+              >
+                <p className="text-sm font-medium">
+                  Delete this board?
+                </p>
+                <p className="mt-1 text-xs text-(--muted-foreground)">
+                  All tasks in &quot;{board.name}&quot; will be removed. This
+                  cannot be undone.
+                </p>
+                <div className="mt-3 flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => setBoardToDelete(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1 bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500"
+                    onClick={() => handleConfirmDelete(board)}
+                    disabled={deleteBoard.isPending}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         ))}
       </div>
     );

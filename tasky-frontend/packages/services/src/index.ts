@@ -29,7 +29,7 @@ export {
 export type { ApiResponse } from "./api/client";
 
 export { useLogin, useRegister, useLogout } from "./hooks/use-auth";
-export { useBoards, useCreateBoard } from "./hooks/use-boards";
+export { useBoards, useCreateBoard, useDeleteBoard } from "./hooks/use-boards";
 export {
   taskBoardQueryOptions,
   useTasks,

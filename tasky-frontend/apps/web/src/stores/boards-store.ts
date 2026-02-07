@@ -5,6 +5,7 @@ interface BoardsState {
   boards: Board[];
   setBoards: (boards: Board[]) => void;
   addBoard: (board: Board) => void;
+  removeBoard: (boardId: string) => void;
   mergeBoards: (serverBoards: Board[]) => Board[];
 }
 
@@ -16,6 +17,10 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
       boards: state.boards.some((b) => b.boardId === board.boardId)
         ? state.boards.map((b) => (b.boardId === board.boardId ? board : b))
         : [board, ...state.boards],
+    })),
+  removeBoard: (boardId) =>
+    set((state) => ({
+      boards: state.boards.filter((b) => b.boardId !== boardId),
     })),
   mergeBoards: (serverBoards) => {
     const { boards: cached } = get();

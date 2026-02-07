@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { Task, TaskPriority } from "@tasky/services";
+import type { Task, TaskPriority, TaskStatus } from "@tasky/services";
 import {
   Button,
   Input,
@@ -19,26 +19,15 @@ import {
   Pencil,
   Trash2,
   Clock,
+  MoreVertical,
 } from "lucide-react";
-
-const PRIORITY_GRADIENT: Record<TaskPriority, string> = {
-  LOW: "bg-gradient-to-r from-emerald-400 to-emerald-600 dark:from-emerald-500 dark:to-emerald-700",
-  NORMAL:
-    "bg-gradient-to-r from-sky-400 to-sky-600 dark:from-sky-500 dark:to-sky-700",
-  HIGH: "bg-gradient-to-r from-orange-400 to-orange-600 dark:from-orange-500 dark:to-orange-700",
-};
-
-const PRIORITY_LABEL: Record<TaskPriority, string> = {
-  LOW: "Low",
-  NORMAL: "Normal",
-  HIGH: "High",
-};
-
-const PRIORITY_SELECT_OPTIONS: { value: TaskPriority; label: string }[] = [
-  { value: "LOW", label: "Low" },
-  { value: "NORMAL", label: "Normal" },
-  { value: "HIGH", label: "High" },
-];
+import {
+  TASK_PRIORITY_GRADIENT,
+  TASK_PRIORITY_LABEL,
+  TASK_PRIORITY_OPTIONS,
+} from "@/lib/task-constants";
+import type { TaskEditData } from "@/types/task";
+import { TaskActionsModal } from "./task-actions-modal";
 
 function getRelativeDate(isoDate: string): string {
   const d = new Date(isoDate);
@@ -56,21 +45,26 @@ function getRelativeDate(isoDate: string): string {
   return d.toLocaleDateString("en", { day: "2-digit", month: "short" });
 }
 
-export interface TaskEditData {
-  readonly title: string;
-  readonly description?: string;
-  readonly priority?: TaskPriority;
-}
-
 interface TaskCardProps {
   readonly task: Task;
   readonly onSaveEdit: (taskId: string, data: TaskEditData) => void;
   readonly onDelete: (taskId: string) => void;
+  readonly onMoveStatus?: (taskId: string, newStatus: TaskStatus) => void;
+  readonly onUpdatePriority?: (taskId: string, priority: TaskPriority) => void;
+  readonly isMobile?: boolean;
 }
 
-export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
+export function TaskCard({
+  task,
+  onSaveEdit,
+  onDelete,
+  onMoveStatus,
+  onUpdatePriority,
+  isMobile = false,
+}: TaskCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [actionsModalOpen, setActionsModalOpen] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editDescription, setEditDescription] = useState(
     task.description ?? ""
@@ -90,7 +84,7 @@ export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
   } = useSortable({
     id: task.taskId,
     data: { task },
-    disabled: isCompleted,
+    disabled: isCompleted || isMobile,
   });
 
   const style = {
@@ -138,21 +132,36 @@ export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
   );
 
   const priorityKey = task.priority ?? "NORMAL";
-  const priorityGradient = PRIORITY_GRADIENT[priorityKey];
+  const priorityGradient = TASK_PRIORITY_GRADIENT[priorityKey];
   const relativeDate = getRelativeDate(task.createdAt);
+
+  const openModalIfMobile = useCallback(() => {
+    if (isMobile && !isCompleted && onMoveStatus && onUpdatePriority) {
+      setActionsModalOpen(true);
+    }
+  }, [isMobile, isCompleted, onMoveStatus, onUpdatePriority]);
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`group relative rounded-xl bg-gradient-to-br from-(--card)/80 via-(--card)/80 to-(--muted)/20 p-3 text-sm shadow-sm backdrop-blur-md transition-all duration-200 ${isCompleted ? "cursor-default" : "cursor-grab active:cursor-grabbing"} ${
+      role={isMobile && !isCompleted ? "button" : undefined}
+      tabIndex={isMobile && !isCompleted ? 0 : undefined}
+      onClick={openModalIfMobile}
+      onKeyDown={(e) => {
+        if (isMobile && !isCompleted && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          openModalIfMobile();
+        }
+      }}
+      className={`group relative rounded-xl bg-gradient-to-br from-(--card)/80 via-(--card)/80 to-(--muted)/20 p-3 text-sm shadow-sm backdrop-blur-md transition-all duration-200 ${isCompleted ? "cursor-default" : isMobile ? "cursor-pointer active:opacity-95" : "cursor-grab active:cursor-grabbing"} ${
         isDragging
           ? "z-50 rotate-2 opacity-95 shadow-lg ring-2 ring-(--ring)"
           : "hover:shadow-md"
       }`}
     >
       <div className="flex items-start gap-2">
-        {!isCompleted && (
+        {!isCompleted && !isMobile && (
           <div
             className="mt-1 shrink-0 cursor-grab text-(--muted-foreground) opacity-0 group-hover:opacity-100"
             {...attributes}
@@ -163,6 +172,10 @@ export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
         )}
         <div className="min-w-0 flex-1">
           {isCompleted ? (
+            <h4 className="leading-snug font-semibold text-(--foreground)">
+              {task.title}
+            </h4>
+          ) : isMobile ? (
             <h4 className="leading-snug font-semibold text-(--foreground)">
               {task.title}
             </h4>
@@ -202,12 +215,27 @@ export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
               aria-label={`Priority ${priorityKey.toLowerCase()}`}
             >
               <span className="text-[10px] leading-none font-medium text-white/95">
-                {PRIORITY_LABEL[priorityKey]}
+                {TASK_PRIORITY_LABEL[priorityKey]}
               </span>
             </span>
           </div>
         </div>
-        {!isCompleted && (
+        {!isCompleted && isMobile && onMoveStatus && onUpdatePriority && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setActionsModalOpen(true);
+            }}
+            className="shrink-0 rounded p-1.5 text-(--muted-foreground) hover:bg-(--accent) hover:text-(--accent-foreground)"
+            title="Acciones"
+            aria-label="Abrir acciones"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </button>
+        )}
+        {!isCompleted && !isMobile && (
           <div
             className="flex shrink-0 gap-0.5 opacity-0 group-hover:opacity-100"
             onPointerDown={(e) => e.stopPropagation()}
@@ -297,7 +325,7 @@ export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
                         "flex h-10 w-full items-center justify-between rounded-lg border border-(--input) bg-(--background) px-3 py-2 text-sm text-(--foreground) shadow-sm transition-colors outline-none focus:ring-2 focus:ring-(--ring) disabled:cursor-not-allowed disabled:opacity-50"
                       )}
                     >
-                      {PRIORITY_SELECT_OPTIONS.map((opt) => (
+                      {TASK_PRIORITY_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
                           {opt.label}
                         </option>
@@ -381,6 +409,17 @@ export function TaskCard({ task, onSaveEdit, onDelete }: TaskCardProps) {
           </div>
         )}
       </div>
+      {isMobile && onMoveStatus && onUpdatePriority && (
+        <TaskActionsModal
+          task={task}
+          open={actionsModalOpen}
+          onOpenChange={setActionsModalOpen}
+          onSaveEdit={onSaveEdit}
+          onDelete={onDelete}
+          onMoveStatus={onMoveStatus}
+          onUpdatePriority={onUpdatePriority}
+        />
+      )}
     </div>
   );
 }

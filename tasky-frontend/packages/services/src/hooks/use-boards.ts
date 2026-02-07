@@ -31,3 +31,18 @@ export function useCreateBoard() {
     },
   });
 }
+
+export function useDeleteBoard() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (boardId: string) => {
+      await apiClient.delete(`/api/v1/boards/${boardId}`);
+    },
+    onSuccess: (_, boardId) => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.boards.all() });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.tasks.board(boardId),
+      });
+    },
+  });
+}

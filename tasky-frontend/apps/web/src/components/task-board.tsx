@@ -11,7 +11,7 @@ import {
   type DragStartEvent,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import type { Task, TaskStatus } from "@tasky/services";
+import type { Task, TaskStatus, TaskPriority } from "@tasky/services";
 import {
   useTaskBoard,
   useMoveTask,
@@ -23,6 +23,7 @@ import {
 import { Skeleton } from "@tasky/ui";
 import { useToast } from "@/hooks/use-toast";
 import { useBoardState } from "@/hooks/use-board-state";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   TASK_STATUSES,
   BOARD_COLUMN_CONFIG,
@@ -40,7 +41,7 @@ import {
   getAllTasks,
   getTasksByStatus,
 } from "@/lib/board-utils";
-import type { TaskEditData } from "./task-card";
+import type { TaskEditData } from "@/types/task";
 import { TaskColumn } from "./task-column";
 import { TaskCard } from "./task-card";
 
@@ -70,6 +71,7 @@ function TaskBoardComponent({
   const moveTask = useMoveTask();
 
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (openNewTask && onOpenNewTaskConsumed) {
@@ -162,21 +164,31 @@ function TaskBoardComponent({
     (taskId: string, data: TaskEditData) => {
       const previousTask = findTask(displayBoard, taskId);
       if (!previousTask) return;
+      const status = data.status ?? previousTask.status;
       const priority = data.priority ?? previousTask.priority ?? "NORMAL";
       const updatedTask: Task = {
         ...previousTask,
         title: data.title,
         description: data.description ?? null,
+        status,
         priority,
         updatedAt: new Date().toISOString(),
       };
-      setBoard((prev) => (prev ? replaceTaskInBoard(prev, updatedTask) : prev));
+      const boardBefore = displayBoard;
+      setBoard((prev) => {
+        if (!prev) return prev;
+        if (status !== previousTask.status) {
+          const without = removeTask(prev, taskId);
+          return addTaskToStatus(without, status, updatedTask);
+        }
+        return replaceTaskInBoard(prev, updatedTask);
+      });
       updateTask.mutate(
         {
           taskId,
           title: data.title,
           description: data.description,
-          status: previousTask.status,
+          status,
           priority,
         },
         {
@@ -188,9 +200,7 @@ function TaskBoardComponent({
             }
           },
           onError: () => {
-            setBoard((prev) =>
-              prev ? replaceTaskInBoard(prev, previousTask) : prev
-            );
+            setBoard(() => boardBefore ?? null);
             toast.error("Error", "Could not save");
           },
         }
@@ -216,6 +226,58 @@ function TaskBoardComponent({
       });
     },
     [displayBoard, setBoard, deleteTask, queryClient, toast]
+  );
+
+  const handleMoveStatus = useCallback(
+    (taskId: string, newStatus: TaskStatus) => {
+      if (!displayBoard || !boardId || !boardResponse) return;
+      const currentTask = findTask(displayBoard, taskId);
+      if (!currentTask || currentTask.status === newStatus) return;
+      const targetStatusId = getStatusIdForStatus(boardResponse, newStatus);
+      if (!targetStatusId) return;
+      const targetList = getTasksByStatus(displayBoard, newStatus);
+      const position = targetList.length;
+      const boardBeforeMove = displayBoard;
+      setBoard((prev) =>
+        prev ? moveTaskToStatus(prev, taskId, newStatus) : prev
+      );
+      moveTask.mutate(
+        { taskId, statusId: targetStatusId, position },
+        {
+          onSuccess: () => {
+            void queryClient.invalidateQueries({
+              queryKey: queryKeys.tasks.board(boardId),
+            });
+          },
+          onError: () => {
+            setBoard(() => boardBeforeMove);
+            toast.error("Error", "No se pudo mover la tarea");
+          },
+        }
+      );
+    },
+    [
+      displayBoard,
+      setBoard,
+      moveTask,
+      toast,
+      boardId,
+      boardResponse,
+      queryClient,
+    ]
+  );
+
+  const handleUpdatePriority = useCallback(
+    (taskId: string, priority: TaskPriority) => {
+      const previousTask = findTask(displayBoard, taskId);
+      if (!previousTask) return;
+      handleSaveEdit(taskId, {
+        title: previousTask.title,
+        description: previousTask.description ?? undefined,
+        priority,
+      });
+    },
+    [displayBoard, handleSaveEdit]
   );
 
   const handleAddCardSubmit = useCallback(
@@ -337,6 +399,9 @@ function TaskBoardComponent({
                 onSaveEdit={handleSaveEdit}
                 onDelete={handleDelete}
                 onAddCardSubmit={handleAddCardSubmit}
+                onMoveStatus={handleMoveStatus}
+                onUpdatePriority={handleUpdatePriority}
+                isMobile={isMobile}
               />
             ))}
           </div>
@@ -348,6 +413,9 @@ function TaskBoardComponent({
                   task={activeTask}
                   onSaveEdit={handleSaveEdit}
                   onDelete={handleDelete}
+                  onMoveStatus={handleMoveStatus}
+                  onUpdatePriority={handleUpdatePriority}
+                  isMobile={false}
                 />
               </div>
             )}

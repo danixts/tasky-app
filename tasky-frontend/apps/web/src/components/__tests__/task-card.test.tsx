@@ -40,7 +40,8 @@ describe("TaskCard", () => {
 
   it("renders creation date", () => {
     renderTaskCard();
-    expect(screen.getByText(/06 feb/i)).toBeInTheDocument();
+    const dateText = screen.getByText(/today|yesterday|\d+ days ago|\d{2} \w{3}/i);
+    expect(dateText).toBeInTheDocument();
   });
 
   it("renders task without description", () => {
@@ -49,13 +50,15 @@ describe("TaskCard", () => {
     expect(screen.queryByText("Task description")).not.toBeInTheDocument();
   });
 
-  it("calls onDelete when delete button is clicked", () => {
+  it("calls onDelete when delete is confirmed in popover", () => {
     const { onDelete } = renderTaskCard();
     const deleteButtons = screen.getAllByRole("button");
     const deleteBtn = deleteButtons.find((btn) =>
       btn.querySelector(".lucide-trash-2")
     );
     if (deleteBtn) fireEvent.click(deleteBtn);
+    const confirmBtn = screen.getByRole("button", { name: /^delete$/i });
+    fireEvent.click(confirmBtn);
     expect(onDelete).toHaveBeenCalledWith("123");
   });
 

@@ -4,10 +4,11 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import type { Task, TaskStatus } from "@tasky/services";
+import type { Task, TaskStatus, TaskPriority } from "@tasky/services";
 import { Button, Input, Textarea } from "@tasky/ui";
 import { cn } from "@tasky/ui/lib/utils";
-import { TaskCard, type TaskEditData } from "./task-card";
+import type { TaskEditData } from "@/types/task";
+import { TaskCard } from "./task-card";
 import { ListTodo, Loader2, CheckCircle2, Plus } from "lucide-react";
 
 const COLUMN_ACCENT: Record<TaskStatus, string> = {
@@ -40,6 +41,9 @@ interface TaskColumnProps {
     title: string,
     description?: string
   ) => Promise<void>;
+  readonly onMoveStatus?: (taskId: string, newStatus: TaskStatus) => void;
+  readonly onUpdatePriority?: (taskId: string, priority: TaskPriority) => void;
+  readonly isMobile?: boolean;
 }
 
 export function TaskColumn({
@@ -49,6 +53,9 @@ export function TaskColumn({
   onSaveEdit,
   onDelete,
   onAddCardSubmit,
+  onMoveStatus,
+  onUpdatePriority,
+  isMobile = false,
 }: TaskColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   const [isAdding, setIsAdding] = useState(false);
@@ -125,6 +132,9 @@ export function TaskColumn({
               task={task}
               onSaveEdit={onSaveEdit}
               onDelete={onDelete}
+              onMoveStatus={onMoveStatus}
+              onUpdatePriority={onUpdatePriority}
+              isMobile={isMobile}
             />
           ))}
         </SortableContext>

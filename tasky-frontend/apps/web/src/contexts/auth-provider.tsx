@@ -15,6 +15,7 @@ import {
 } from "@tasky/services";
 import { useQueryClient } from "@tanstack/react-query";
 import { AuthContext, type AuthContextType } from "./auth-context";
+import { useBoardsStore } from "@/stores/boards-store";
 
 interface AuthProviderProps {
   readonly children: ReactNode;
@@ -74,8 +75,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } catch {
       clearAuth();
     }
+    clearAuth();
     setUsername(null);
     queryClient.clear();
+    useBoardsStore.getState().setBoards([]);
   }, [logoutMutation, queryClient]);
 
   const contextValue = useMemo<AuthContextType>(
