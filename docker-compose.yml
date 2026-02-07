@@ -1,5 +1,5 @@
 services:
-  backend:
+  tasky-backend:
     build:
       context: ./tasky-backend
       dockerfile: Dockerfile
