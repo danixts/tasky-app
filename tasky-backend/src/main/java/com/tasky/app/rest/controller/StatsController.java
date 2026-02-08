@@ -2,6 +2,7 @@ package com.tasky.app.rest.controller;
 
 import com.tasky.common.model.ResponseHandler;
 import com.tasky.common.model.SuccessResponse;
+import com.tasky.domain.entity.stats.dto.StatsResponseDto;
 import com.tasky.domain.entity.stats.dto.TaskCountByBoardAndStatusDto;
 import com.tasky.domain.entity.stats.dto.TaskCountByStatusDto;
 import com.tasky.domain.entity.stats.service.StatsService;
@@ -25,6 +26,12 @@ import java.util.List;
 public class StatsController {
 
     private final StatsService statsService;
+
+    @GetMapping
+    @Operation(summary = "Summary and breakdown in one request")
+    public ResponseEntity<SuccessResponse<StatsResponseDto>> getStats() {
+        return ResponseHandler.success(statsService.getStatsForCurrentUser());
+    }
 
     @GetMapping("/summary")
     @Operation(summary = "Task count aggregated by status for current user")

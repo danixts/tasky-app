@@ -101,4 +101,40 @@ class StatsServiceImplTest {
         assertTrue(result.isEmpty());
         verify(statsRepository).findTaskCountByBoardAndStatusForUser(userId);
     }
+
+    @Test
+    void shouldReturnStatsWithSummaryAndBreakdown_whenGetStatsForCurrentUser() {
+        var statusProjection = mock(TaskCountByStatusProjection.class);
+        when(statusProjection.getStatusCode()).thenReturn("COMPLETED");
+        when(statusProjection.getStatusLabel()).thenReturn("Complete");
+        when(statusProjection.getTaskCount()).thenReturn(10L);
+
+        var boardId = UUID.randomUUID();
+        var boardProjection = mock(TaskCountByBoardAndStatusProjection.class);
+        when(boardProjection.getBoardId()).thenReturn(boardId);
+        when(boardProjection.getBoardName()).thenReturn("Work");
+        when(boardProjection.getStatusCode()).thenReturn("COMPLETED");
+        when(boardProjection.getStatusLabel()).thenReturn("Complete");
+        when(boardProjection.getTaskCount()).thenReturn(10L);
+
+        when(statsRepository.findTaskCountByStatusForUser(userId)).thenReturn(List.of(statusProjection));
+        when(statsRepository.findTaskCountByBoardAndStatusForUser(userId)).thenReturn(List.of(boardProjection));
+
+        var result = statsService.getStatsForCurrentUser();
+
+        assertNotNull(result.getSummary());
+        assertEquals(1, result.getSummary().size());
+        assertEquals("COMPLETED", result.getSummary().get(0).getStatusCode());
+        assertEquals(10L, result.getSummary().get(0).getTaskCount());
+
+        assertNotNull(result.getBreakdown());
+        assertEquals(1, result.getBreakdown().size());
+        assertEquals(boardId, result.getBreakdown().get(0).getBoardId());
+        assertEquals("Work", result.getBreakdown().get(0).getBoardName());
+        assertEquals(10L, result.getBreakdown().get(0).getTaskCount());
+
+        verify(userContext).getUserId();
+        verify(statsRepository).findTaskCountByStatusForUser(userId);
+        verify(statsRepository).findTaskCountByBoardAndStatusForUser(userId);
+    }
 }

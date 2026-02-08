@@ -1,5 +1,6 @@
 package com.tasky.app.rest.controller;
 
+import com.tasky.domain.entity.stats.dto.StatsResponseDto;
 import com.tasky.domain.entity.stats.dto.TaskCountByBoardAndStatusDto;
 import com.tasky.domain.entity.stats.dto.TaskCountByStatusDto;
 import com.tasky.domain.entity.stats.service.StatsService;
@@ -33,6 +34,57 @@ class StatsControllerTest {
     private StatsService statsService;
 
     private final UUID boardId = UUID.randomUUID();
+
+    @Test
+    @WithMockUser
+    void shouldReturnStats_whenGetStats() throws Exception {
+        var summaryItem = TaskCountByStatusDto.builder()
+                .statusCode("TODO")
+                .statusLabel("To Do")
+                .taskCount(5L)
+                .build();
+        var breakdownItem = TaskCountByBoardAndStatusDto.builder()
+                .boardId(boardId)
+                .boardName("My Board")
+                .statusCode("TODO")
+                .statusLabel("To Do")
+                .taskCount(3L)
+                .build();
+        var statsResponse = StatsResponseDto.builder()
+                .summary(List.of(summaryItem))
+                .breakdown(List.of(breakdownItem))
+                .build();
+
+        when(statsService.getStatsForCurrentUser()).thenReturn(statsResponse);
+
+        mockMvc.perform(get("/api/v1/stats"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.summary[0].statusCode").value("TODO"))
+                .andExpect(jsonPath("$.data.summary[0].taskCount").value(5))
+                .andExpect(jsonPath("$.data.breakdown[0].boardId").value(boardId.toString()))
+                .andExpect(jsonPath("$.data.breakdown[0].boardName").value("My Board"))
+                .andExpect(jsonPath("$.data.breakdown[0].taskCount").value(3));
+
+        verify(statsService).getStatsForCurrentUser();
+    }
+
+    @Test
+    @WithMockUser
+    void shouldReturnEmptySummaryAndBreakdown_whenGetStatsHasNoData() throws Exception {
+        var statsResponse = StatsResponseDto.builder()
+                .summary(List.of())
+                .breakdown(List.of())
+                .build();
+
+        when(statsService.getStatsForCurrentUser()).thenReturn(statsResponse);
+
+        mockMvc.perform(get("/api/v1/stats"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.summary").isArray())
+                .andExpect(jsonPath("$.data.summary.length()").value(0))
+                .andExpect(jsonPath("$.data.breakdown").isArray())
+                .andExpect(jsonPath("$.data.breakdown.length()").value(0));
+    }
 
     @Test
     @WithMockUser
