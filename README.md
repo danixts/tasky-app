@@ -6,7 +6,7 @@ Aplicación de gestión de tareas tipo Kanban: tableros por usuario, columnas po
 
 - **Backend:** Java 25, Spring Boot 4, Spring Data JPA, Spring Security (JWT), Flyway, PostgreSQL, Caffeine, OpenAPI/Swagger.
 - **Frontend:** React 19, TypeScript, Vite, TanStack Query, TanStack Router, pnpm monorepo (Turbo), Recharts.
-- **Despliegue:** Docker, docker-compose.
+- **Despliegue:** Docker, docker-compose. En producción: entorno Dokploy en una VPS, dominio tasky.danyjs.com.
 
 ## Requisitos
 
@@ -92,6 +92,10 @@ Abrir la URL que indique Vite (por ejemplo `http://localhost:5173`). Asegurarse 
 
 El `docker-compose.yml` define dos servicios: `tasky-backend` y `tasky-frontend`. La red `dokploy-network` es externa; debe existir una base PostgreSQL accesible en esa red (o exponer el backend a una URL de BD externa).
 
+### Producción (Dokploy)
+
+La aplicación se despliega en un entorno **Dokploy** sobre una VPS, con dominio **tasky.danyjs.com**. El DNS del dominio está configurado en **Cloudflare**. La base de datos PostgreSQL está configurada dentro del mismo entorno Dokploy y los servicios (backend y frontend) se levantan con el compose usando la red `dokploy-network` para comunicarse con la BD.
+
 ### Red externa
 
 Si la red no existe:
@@ -115,4 +119,4 @@ docker compose up -d
 - API: puerto `9000` (mapeado en el host).
 - Web: puerto `8088` (mapeado en el host).
 
-Ajustar `APP_BASE_URL` y CORS en el backend según el dominio donde se sirva el frontend.
+Ajustar `APP_BASE_URL` y CORS en el backend según el dominio donde se sirva el frontend. En el despliegue actual (Dokploy, tasky.danyjs.com), la BD y las variables de entorno están configuradas en el panel de Dokploy.
