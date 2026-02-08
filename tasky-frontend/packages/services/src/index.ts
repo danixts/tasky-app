@@ -15,6 +15,9 @@ export type {
   CreateTaskRequest,
   UpdateTaskRequest,
   MoveTaskRequest,
+  TaskCountByStatus,
+  TaskCountByBoardAndStatus,
+  StatsResponse,
 } from "./types";
 
 export {
@@ -40,5 +43,6 @@ export {
   useMoveTask,
   useDeleteTask,
 } from "./hooks/use-tasks";
+export { useTaskStats } from "./hooks/use-stats";
 
 export { queryKeys } from "./query-keys";

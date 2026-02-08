@@ -16,6 +16,7 @@ import { LoginPage } from "@/pages/login";
 import { RegisterPage } from "@/pages/register";
 import { BoardPage } from "@/pages/board";
 import { BoardListPage } from "@/pages/board-list";
+import { StatsPage } from "@/pages/stats";
 import { useAuth } from "@/contexts/auth-context";
 
 function RootComponent() {
@@ -94,6 +95,24 @@ const boardRoute = createRoute({
   component: BoardComponent,
 });
 
+function StatsComponent() {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  return (
+    <AppLayout>
+      <StatsPage />
+    </AppLayout>
+  );
+}
+
+const statsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/stats",
+  component: StatsComponent,
+});
+
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
@@ -109,6 +128,7 @@ const registerRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   boardRoute,
+  statsRoute,
   loginRoute,
   registerRoute,
 ]);

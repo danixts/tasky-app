@@ -71,3 +71,22 @@ export interface MoveTaskRequest {
   statusId: string;
   position: number;
 }
+
+export interface TaskCountByStatus {
+  statusCode: string;
+  statusLabel: string;
+  taskCount: number;
+}
+
+export interface TaskCountByBoardAndStatus {
+  boardId: string;
+  boardName: string;
+  statusCode: string;
+  statusLabel: string;
+  taskCount: number;
+}
+
+export interface StatsResponse {
+  summary: TaskCountByStatus[];
+  breakdown: TaskCountByBoardAndStatus[];
+}

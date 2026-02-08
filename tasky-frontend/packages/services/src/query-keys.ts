@@ -17,4 +17,10 @@ export const queryKeys = {
     board: (boardId?: string) =>
       [...queryKeys.tasks.all(), "board", boardId] as const,
   },
+  stats: {
+    all: () => ["stats"] as const,
+    dashboard: () => [...queryKeys.stats.all(), "dashboard"] as const,
+    tasksByStatus: () => [...queryKeys.stats.all(), "tasksByStatus"] as const,
+    tasksByBoard: () => [...queryKeys.stats.all(), "tasksByBoard"] as const,
+  },
 };

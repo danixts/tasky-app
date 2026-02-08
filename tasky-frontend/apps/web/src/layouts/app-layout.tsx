@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@tasky/ui";
-import { LogOut, LayoutGrid } from "lucide-react";
+import { LogOut, LayoutGrid, BarChart2 } from "lucide-react";
 
 interface AppLayoutProps {
   readonly children: React.ReactNode;
@@ -63,6 +63,13 @@ export function AppLayout({ children }: AppLayoutProps) {
             <span className="text-lg font-semibold tracking-tight text-(--foreground) md:text-xl">
               Tasky
             </span>
+          </Link>
+          <Link
+            to="/stats"
+            className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-(--muted-foreground) transition-colors outline-none hover:bg-(--accent) hover:text-(--accent-foreground) focus-visible:ring-2 focus-visible:ring-(--ring)"
+          >
+            <BarChart2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Estadísticas</span>
           </Link>
         </nav>
         <div className="flex shrink-0 items-center gap-1 sm:gap-2">

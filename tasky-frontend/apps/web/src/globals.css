@@ -76,11 +76,11 @@
   --input: oklch(0.28 0.04 230);
   --ring: oklch(0.66 0.12 230);
   --color-primary: oklch(0.66 0.12 230);
-  --chart-1: oklch(0.66 0.12 230);
-  --chart-2: oklch(0.68 0.12 220);
-  --chart-3: oklch(0.72 0.12 85);
-  --chart-4: oklch(0.65 0.15 330);
-  --chart-5: oklch(0.68 0.12 230);
+  --chart-1: oklch(0.72 0.16 230);
+  --chart-2: oklch(0.74 0.14 165);
+  --chart-3: oklch(0.78 0.16 85);
+  --chart-4: oklch(0.72 0.18 300);
+  --chart-5: oklch(0.74 0.14 200);
   --sidebar: oklch(0.18 0.025 230);
   --sidebar-foreground: oklch(0.98 0.01 230);
   --sidebar-primary: oklch(0.66 0.12 230);
@@ -215,4 +215,12 @@
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+html.dark .recharts-tooltip-wrapper {
+  color: rgba(255, 255, 255, 0.95);
+}
+html.dark .recharts-tooltip-wrapper p,
+html.dark .recharts-tooltip-wrapper span {
+  color: inherit;
 }

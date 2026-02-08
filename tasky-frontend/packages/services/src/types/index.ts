@@ -17,4 +17,7 @@ export type {
   CreateTaskRequest,
   UpdateTaskRequest,
   MoveTaskRequest,
+  TaskCountByStatus,
+  TaskCountByBoardAndStatus,
+  StatsResponse,
 } from "./task";
