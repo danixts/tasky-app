@@ -7,6 +7,7 @@ import com.tasky.domain.entity.board.BoardRepository;
 import com.tasky.domain.entity.board.BoardStatusEntity;
 import com.tasky.domain.entity.board.BoardStatusRepository;
 import com.tasky.domain.entity.board.dto.BoardResponse;
+import com.tasky.domain.entity.task.TaskRepository;
 import com.tasky.domain.entity.board.dto.BoardStatusResponse;
 import com.tasky.domain.entity.board.dto.CreateBoardBody;
 import com.tasky.domain.entity.board.dto.UpdateBoardBody;
@@ -36,6 +37,9 @@ class BoardServiceImplTest {
 
     @Mock
     private BoardStatusRepository boardStatusRepository;
+
+    @Mock
+    private TaskRepository taskRepository;
 
     @Mock
     private UserContext userContext;
@@ -143,6 +147,8 @@ class BoardServiceImplTest {
 
         boardService.deleteBoard(boardId);
 
+        verify(taskRepository).deleteAllByBoardId(boardId);
+        verify(boardStatusRepository).deleteAllByBoardId(boardId);
         verify(boardRepository).delete(boardEntity);
     }
 

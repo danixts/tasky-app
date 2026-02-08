@@ -8,6 +8,7 @@ import com.tasky.domain.entity.board.BoardRepository;
 import com.tasky.domain.entity.board.BoardStatusEntity;
 import com.tasky.domain.entity.board.BoardStatusRepository;
 import com.tasky.domain.entity.board.dto.BoardResponse;
+import com.tasky.domain.entity.task.TaskRepository;
 import com.tasky.domain.entity.board.dto.BoardStatusResponse;
 import com.tasky.domain.entity.board.dto.CreateBoardBody;
 import com.tasky.domain.entity.board.dto.UpdateBoardBody;
@@ -36,12 +37,17 @@ public class BoardServiceImpl implements BoardService {
 
     private final BoardRepository boardRepository;
     private final BoardStatusRepository boardStatusRepository;
+    private final TaskRepository taskRepository;
     private final UserContext userContext;
 
     @Override
-    @Cacheable(value = CacheConfig.BOARDS, key = "@userContext.getUserId()")
     public List<BoardResponse> listBoardsByUser() {
-        var userId = userContext.getUserId();
+        return listBoardsByUserId(userContext.getUserId());
+    }
+
+    @Override
+    @Cacheable(value = CacheConfig.BOARDS, key = "#userId.toString()")
+    public List<BoardResponse> listBoardsByUserId(UUID userId) {
         return boardRepository.findAllByUserIdOrderByCreatedAtAsc(userId)
                 .stream()
                 .map(this::toBoardResponse)
@@ -56,7 +62,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    @CacheEvict(value = CacheConfig.BOARDS, key = "@userContext.getUserId()")
+    @CacheEvict(value = CacheConfig.BOARDS, key = "@userContext.getUserId().toString()")
     public BoardResponse createBoard(CreateBoardBody body) {
         var userId = userContext.getUserId();
         var now = LocalDateTime.now();
@@ -73,7 +79,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     @Transactional
-    @CacheEvict(value = { CacheConfig.BOARDS, CacheConfig.BOARD, CacheConfig.BOARD_STATUSES, CacheConfig.TASK_BOARD }, key = "@userContext.getUserId() + ':' + #boardId")
+    @CacheEvict(value = { CacheConfig.BOARDS, CacheConfig.BOARD, CacheConfig.BOARD_STATUSES, CacheConfig.TASK_BOARD }, key = "@userContext.getUserId().toString() + ':' + #boardId")
     public BoardResponse updateBoard(UUID boardId, UpdateBoardBody body) {
         var board = findBoardOrThrow(boardId);
         board.setName(body.getName());
@@ -83,11 +89,13 @@ public class BoardServiceImpl implements BoardService {
     @Override
     @Transactional
     @Caching(evict = {
-            @CacheEvict(value = {CacheConfig.BOARDS, CacheConfig.BOARD, CacheConfig.BOARD_STATUSES, CacheConfig.TASK_BOARD}, key = "@userContext.getUserId() + ':' + #boardId"),
+            @CacheEvict(value = {CacheConfig.BOARDS, CacheConfig.BOARD, CacheConfig.BOARD_STATUSES, CacheConfig.TASK_BOARD}, key = "@userContext.getUserId().toString() + ':' + #boardId"),
             @CacheEvict(value = CacheConfig.TASK, key = "'list:' + @userContext.getUserId()")
     })
     public void deleteBoard(UUID boardId) {
         var board = findBoardOrThrow(boardId);
+        taskRepository.deleteAllByBoardId(boardId);
+        boardStatusRepository.deleteAllByBoardId(boardId);
         boardRepository.delete(board);
     }
 

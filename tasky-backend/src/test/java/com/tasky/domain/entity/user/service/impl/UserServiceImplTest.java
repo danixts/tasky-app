@@ -48,7 +48,7 @@ class UserServiceImplTest {
 
     @Test
     void shouldReturnReadUserDto_whenUserExists() {
-        when(userRepository.findByUsernameOrEmailAndStateUser("testuser", "testuser", true))
+        when(userRepository.findByUsernameOrEmailAndStateUserWithRole("testuser", "testuser", true))
                 .thenReturn(Optional.of(userEntity));
 
         ReadUserDto result = userService.getUserCredentials("testuser");
@@ -61,7 +61,7 @@ class UserServiceImplTest {
 
     @Test
     void shouldThrowApiErrorException_whenUserNotFound() {
-        when(userRepository.findByUsernameOrEmailAndStateUser("unknown", "unknown", true))
+        when(userRepository.findByUsernameOrEmailAndStateUserWithRole("unknown", "unknown", true))
                 .thenReturn(Optional.empty());
 
         assertThrows(ApiErrorException.class, () -> userService.getUserCredentials("unknown"));
@@ -69,7 +69,7 @@ class UserServiceImplTest {
 
     @Test
     void shouldReturnUserRoles_whenUserExists() {
-        when(userRepository.findByUsernameOrEmailAndStateUser("testuser", "testuser", true))
+        when(userRepository.findByUsernameOrEmailAndStateUserWithRole("testuser", "testuser", true))
                 .thenReturn(Optional.of(userEntity));
 
         List<String> result = userService.getUserRoles("testuser");
@@ -80,7 +80,7 @@ class UserServiceImplTest {
 
     @Test
     void shouldThrowApiErrorException_whenUserNotFoundForRoles() {
-        when(userRepository.findByUsernameOrEmailAndStateUser("unknown", "unknown", true))
+        when(userRepository.findByUsernameOrEmailAndStateUserWithRole("unknown", "unknown", true))
                 .thenReturn(Optional.empty());
 
         assertThrows(ApiErrorException.class, () -> userService.getUserRoles("unknown"));

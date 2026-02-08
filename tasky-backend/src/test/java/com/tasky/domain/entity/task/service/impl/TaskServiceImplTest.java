@@ -81,6 +81,7 @@ class TaskServiceImplTest {
         boardEntity.setName("Board");
 
         statusEntity = new BoardStatusEntity(statusId, boardId, "TODO", "To Do", 0);
+        boardEntity.setStatuses(List.of(statusEntity));
 
         taskEntity = new TaskEntity();
         taskEntity.setTaskId(taskId);
@@ -99,8 +100,7 @@ class TaskServiceImplTest {
 
     @Test
     void shouldReturnTaskBoardResponse_whenBoardExists() {
-        when(boardRepository.findByBoardIdAndUserId(boardId, userId)).thenReturn(Optional.of(boardEntity));
-        when(boardStatusRepository.findAllByBoardIdOrderByPositionAsc(boardId)).thenReturn(List.of(statusEntity));
+        when(boardRepository.findByBoardIdAndUserIdWithStatuses(boardId, userId)).thenReturn(Optional.of(boardEntity));
         when(taskRepository.findAllByBoardId(boardId)).thenReturn(List.of(taskEntity));
 
         TaskBoardResponse result = taskService.getBoard(boardId);
@@ -113,7 +113,7 @@ class TaskServiceImplTest {
 
     @Test
     void shouldThrowApiErrorException_whenBoardNotFound() {
-        when(boardRepository.findByBoardIdAndUserId(boardId, userId)).thenReturn(Optional.empty());
+        when(boardRepository.findByBoardIdAndUserIdWithStatuses(boardId, userId)).thenReturn(Optional.empty());
 
         assertThrows(ApiErrorException.class, () -> taskService.getBoard(boardId));
     }

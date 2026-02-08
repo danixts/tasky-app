@@ -23,6 +23,7 @@ spring:
     properties:
       hibernate:
         format_sql: ${SQL_FORMAT:true}
+        default_batch_fetch_size: 32
         jdbc:
           time_zone: UTC
           lob:

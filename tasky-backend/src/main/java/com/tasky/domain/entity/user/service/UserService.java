@@ -8,4 +8,6 @@ public interface UserService {
     ReadUserDto getUserCredentials(String username);
 
     List<String> getUserRoles(String username);
+
+    ReadUserDto getCredentialsWithRole(String username);
 }

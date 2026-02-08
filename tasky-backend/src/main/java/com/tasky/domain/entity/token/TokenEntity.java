@@ -24,6 +24,6 @@ public class TokenEntity {
     @Column(nullable = false)
     private boolean revoked;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private UserEntity user;
 }

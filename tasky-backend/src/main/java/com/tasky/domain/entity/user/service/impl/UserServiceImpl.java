@@ -20,10 +20,22 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserEntity findByUser(String username) {
-        return userRepository.findByUsernameOrEmailAndStateUser(username, username, true)
+        return userRepository.findByUsernameOrEmailAndStateUserWithRole(username, username, true)
                 .orElseThrow(
                         () -> new ApiErrorException("USER NOT FOUND", HttpStatus.NOT_FOUND, null, false)
                 );
+    }
+
+    @Override
+    public ReadUserDto getCredentialsWithRole(String username) {
+        UserEntity user = findByUser(username);
+        return ReadUserDto.builder()
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .stateUser(user.getStateUser())
+                .codeRole(user.getRole().getCode())
+                .userId(user.getUserId().toString())
+                .build();
     }
 
     @Override

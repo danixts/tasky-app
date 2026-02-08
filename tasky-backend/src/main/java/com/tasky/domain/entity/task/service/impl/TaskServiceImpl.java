@@ -59,8 +59,10 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Cacheable(value = CacheConfig.TASK_BOARD, key = "@userContext.getUserId() + ':' + #boardId")
     public TaskBoardResponse getBoard(UUID boardId) {
-        var board = findBoardOrThrow(boardId);
-        var statuses = boardStatusRepository.findAllByBoardIdOrderByPositionAsc(boardId);
+        var board = findBoardWithStatusesOrThrow(boardId);
+        var statuses = board.getStatuses().stream()
+                .sorted(Comparator.comparing(BoardStatusEntity::getPosition))
+                .toList();
         var tasks = taskRepository.findAllByBoardId(boardId);
 
         var statusCodeById = statuses.stream()
@@ -247,6 +249,12 @@ public class TaskServiceImpl implements TaskService {
     private BoardEntity findBoardOrThrow(UUID boardId) {
         var userId = userContext.getUserId();
         return boardRepository.findByBoardIdAndUserId(boardId, userId)
+                .orElseThrow(() -> new ApiErrorException("BOARD NOT FOUND", HttpStatus.NOT_FOUND, null, false));
+    }
+
+    private BoardEntity findBoardWithStatusesOrThrow(UUID boardId) {
+        var userId = userContext.getUserId();
+        return boardRepository.findByBoardIdAndUserIdWithStatuses(boardId, userId)
                 .orElseThrow(() -> new ApiErrorException("BOARD NOT FOUND", HttpStatus.NOT_FOUND, null, false));
     }
 

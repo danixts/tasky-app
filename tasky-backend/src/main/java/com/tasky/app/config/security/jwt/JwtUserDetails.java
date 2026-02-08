@@ -27,10 +27,10 @@ public class JwtUserDetails implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ReadUserDto user = this.userService.getUserCredentials(username);
+        ReadUserDto user = this.userService.getCredentialsWithRole(username);
         User customUserDetails = new User(user.getUsername(), user.getPassword(), user.getStateUser()
                 , true, true, true,
-                this.getGrantedAuthorities(this.userService.getUserRoles(username)));
+                this.getGrantedAuthorities(List.of(user.getCodeRole())));
 
         try {
             new AccountStatusUserDetailsChecker().check(customUserDetails);

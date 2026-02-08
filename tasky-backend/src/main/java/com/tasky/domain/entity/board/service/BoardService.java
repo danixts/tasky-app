@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface BoardService {
     List<BoardResponse> listBoardsByUser();
 
+    List<BoardResponse> listBoardsByUserId(UUID userId);
+
     BoardResponse getBoard(UUID boardId);
 
     BoardResponse createBoard(CreateBoardBody body);

@@ -5,7 +5,7 @@ import com.tasky.common.exception.ApiErrorException;
 import com.tasky.domain.entity.auth.dto.request.AuthenticationRequest;
 import com.tasky.domain.entity.auth.dto.request.RegisterRequest;
 import com.tasky.domain.entity.auth.dto.response.AuthenticationResponse;
-import com.tasky.domain.entity.board.BoardRepository;
+import com.tasky.domain.entity.board.service.BoardService;
 import com.tasky.domain.entity.role.RoleEntity;
 import com.tasky.domain.entity.role.RoleRepository;
 import com.tasky.domain.entity.token.TokenRepository;
@@ -48,7 +48,7 @@ class AuthenticationServiceImplTest {
     private RoleRepository roleRepository;
 
     @Mock
-    private BoardRepository boardRepository;
+    private BoardService boardService;
 
     @Mock
     private JwtToken jwtService;
@@ -134,7 +134,7 @@ class AuthenticationServiceImplTest {
         when(jwtService.generateAccessToken(any(UserDetails.class))).thenReturn("accessToken");
         when(jwtService.generateRefreshToken(any(UserDetails.class))).thenReturn("refreshToken");
         when(jwtService.getExpireTimeToken()).thenReturn(3600L);
-        when(boardRepository.findAllByUserIdOrderByCreatedAtAsc(any())).thenReturn(List.of());
+        when(boardService.listBoardsByUserId(any())).thenReturn(List.of());
 
         AuthenticationResponse response = authenticationService.register(request);
 
@@ -186,7 +186,7 @@ class AuthenticationServiceImplTest {
         when(jwtService.generateAccessToken(any())).thenReturn("accessToken");
         when(jwtService.generateRefreshToken(any())).thenReturn("refreshToken");
         when(jwtService.getExpireTimeToken()).thenReturn(3600L);
-        when(boardRepository.findAllByUserIdOrderByCreatedAtAsc(any())).thenReturn(List.of());
+        when(boardService.listBoardsByUserId(any())).thenReturn(List.of());
 
         AuthenticationResponse response = authenticationService.login(request);
 
